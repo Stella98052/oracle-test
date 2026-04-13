@@ -1,234 +1,438 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔮 多人占星週報產生器</title>
+<title>✦ 個人化占星週報</title>
 <style>
-
-:root{
-  --bg:#0d0f14;--card:#13161e;--border:#1e2330;
-  --gold:#f0c040;--gold2:#c8960a;--teal:#4ecdc4;
-  --text:#e8eaf0;--sub:#8892a4;--green:#2ecc71;
-  --red:#e74c3c;--blue:#3498db;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{
-  background:var(--bg);color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif;
-  line-height:1.6;
-}
-.hero{
-  background:linear-gradient(135deg,#1a1030,#0d1a2a,#1a0d20);
-  padding:32px 20px 24px;text-align:center;
-  border-bottom:1px solid var(--border);
-}
-.hero h1{
-  font-size:1.5rem;margin-bottom:6px;
-  background:linear-gradient(90deg,var(--gold),#fff,var(--teal));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
-.hero p{color:var(--sub);font-size:.82rem;}
-.form-wrap{padding:20px;max-width:500px;margin:0 auto;}
-.sec-label{font-size:.72rem;color:var(--sub);letter-spacing:2px;margin-bottom:12px;}
-.form-row{margin-bottom:14px;}
-label{display:block;font-size:.82rem;color:var(--sub);margin-bottom:5px;}
-input{
-  width:100%;background:var(--card);border:1px solid var(--border);
-  border-radius:8px;padding:11px 14px;color:var(--text);
-  font-size:.9rem;outline:none;
-  -webkit-appearance:none;appearance:none;
-}
-input[type="date"]{color-scheme:dark;cursor:pointer;}
-input:focus{border-color:var(--gold2);}
-.date-hint{font-size:.72rem;color:var(--sub);margin-top:4px;}
-.btn-submit{
-  width:100%;background:linear-gradient(135deg,var(--gold2),#9b7a00);
-  color:#fff;border:none;border-radius:10px;padding:14px;
-  font-size:1rem;font-weight:700;cursor:pointer;margin-top:4px;
-}
-.btn-submit:active{opacity:.8;}
-.err-box{
-  background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.25);
-  border-radius:8px;padding:12px;margin-bottom:12px;
-  font-size:.82rem;color:var(--red);display:none;
-}
-#result{display:none;max-width:500px;margin:0 auto;}
-.result-header{text-align:center;padding:20px 20px 14px;}
-.result-header h2{font-size:1.2rem;color:var(--gold);margin-bottom:4px;}
-.result-header p{color:var(--sub);font-size:.8rem;}
-.signs-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:10px 0 0;}
-.sign-badge{
-  background:rgba(240,192,64,.1);border:1px solid rgba(240,192,64,.25);
-  border-radius:20px;padding:4px 12px;font-size:.8rem;
-}
-.lucky-bar{
-  background:var(--card);border-top:1px solid var(--border);
-  border-bottom:1px solid var(--border);
-  padding:14px 20px;
-}
-.lucky-bar h3{color:var(--gold);font-size:.8rem;letter-spacing:1px;margin-bottom:10px;}
-.lucky-row{display:flex;gap:8px;flex-wrap:wrap;}
-.lucky-item{
-  background:rgba(240,192,64,.07);border:1px solid rgba(240,192,64,.18);
-  border-radius:8px;padding:7px 12px;font-size:.82rem;text-align:center;
-  flex:1;min-width:80px;
-}
-.lucky-item .lk{color:var(--sub);font-size:.7rem;display:block;margin-bottom:2px;}
-.lucky-item .lv{color:var(--gold);font-weight:700;font-size:.82rem;}
-.main-pad{padding:0 20px 40px;}
-.rsec{font-size:.72rem;color:var(--sub);letter-spacing:2px;text-transform:uppercase;margin:18px 0 8px;}
-.scores-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
-.sc{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:10px 6px;text-align:center;}
-.sc .si{font-size:1.2rem;margin-bottom:2px;}
-.sc .sn{font-size:.68rem;color:var(--sub);margin-bottom:4px;}
-.sc .ss{font-size:.82rem;}
-.day-card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:7px;}
-.day-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-.day-name{font-weight:700;font-size:.88rem;}
-.day-date{font-size:.72rem;color:var(--sub);}
-.day-lv{font-size:.7rem;padding:2px 7px;border-radius:10px;}
-.lv-h{background:rgba(46,204,113,.15);color:var(--green);}
-.lv-m{background:rgba(240,192,64,.15);color:var(--gold);}
-.lv-l{background:rgba(231,76,60,.15);color:var(--red);}
-.day-txt{font-size:.8rem;color:var(--sub);line-height:1.55;}
-.advice-box{
-  background:rgba(78,205,196,.06);border:1px solid rgba(78,205,196,.2);
-  border-radius:9px;padding:14px;
-}
-.advice-box h4{font-size:.82rem;color:var(--teal);margin-bottom:6px;}
-.advice-box p{font-size:.8rem;color:var(--sub);line-height:1.6;}
-.footer-note{
-  text-align:center;color:var(--sub);font-size:.72rem;
-  padding:16px 20px;border-top:1px solid var(--border);
-}
-
-.lang-btn{position:fixed;top:12px;right:14px;background:rgba(240,192,64,.12);border:1px solid rgba(240,192,64,.35);color:var(--gold);border-radius:20px;padding:5px 14px;font-size:.78rem;font-weight:700;cursor:pointer;z-index:999;letter-spacing:1px;}
-.lang-btn:active{opacity:.7;}
-.reading-box{background:rgba(240,192,64,.05);border:1px solid rgba(240,192,64,.2);border-radius:9px;padding:14px;margin-bottom:4px;}
-.reading-box p{font-size:.82rem;color:var(--sub);line-height:1.75;margin-bottom:6px;}
-.reading-box p:last-child{margin-bottom:0;}
-.reading-tag{display:inline-block;background:rgba(78,205,196,.1);border:1px solid rgba(78,205,196,.25);color:var(--teal);border-radius:12px;padding:2px 10px;font-size:.72rem;margin-bottom:8px;margin-right:5px;}
-.day-color-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle;}
-.day-lucky-color{font-size:.72rem;color:var(--teal);margin-top:4px;}
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Cinzel:wght@600;700&display=swap');
+:root{--bg:#09090f;--card:#12121e;--border:rgba(201,168,76,.22);--gold:#c9a84c;--gold2:#f0d080;--violet:#7c6fa0;--vl:#b0a8cc;--text:#e4ddf2;--dim:#8880a8;--green:#5dbf8a;--red:#e07070;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Serif TC',serif;background:var(--bg);color:var(--text);min-height:100vh}
+canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 0 60px}
+#formPage{padding:20px 18px}
+#reportPage{display:none}
+.fh{text-align:center;padding:26px 0 18px}
+.gl{font-size:2.2rem;display:block;animation:glow 3s ease-in-out infinite}
+@keyframes glow{0%,100%{text-shadow:0 0 10px rgba(201,168,76,.3)}50%{text-shadow:0 0 28px rgba(201,168,76,.85)}}
+.fh h1{font-family:'Cinzel',serif;font-size:1.2rem;color:var(--gold);letter-spacing:.1em;margin:8px 0 4px}
+.fh p{font-size:.7rem;color:var(--dim);letter-spacing:.1em}
+.lang-row{display:flex;justify-content:center;margin:10px 0}
+.lang-wrap{display:inline-flex;border:1px solid var(--border);border-radius:20px;overflow:hidden}
+.lb{padding:5px 18px;font-size:.78rem;background:transparent;border:none;color:var(--dim);cursor:pointer;font-family:'Noto Serif TC',serif;transition:all .2s}
+.lb.active{background:rgba(201,168,76,.2);color:var(--gold)}
+.fc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 15px;margin-bottom:13px}
+.fc-h2{font-size:.7rem;letter-spacing:.16em;color:var(--gold);margin-bottom:13px;text-transform:uppercase}
+.fi{margin-bottom:12px}
+.fi label{display:block;font-size:.71rem;color:var(--vl);margin-bottom:4px}
+.fi input,.fi select{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:10px 12px;color:var(--text);font-size:.85rem;font-family:'Noto Serif TC',serif;-webkit-appearance:none;transition:border .2s}
+.fi input:focus,.fi select:focus{outline:none;border-color:var(--gold)}
+.fi select option{background:#1a1a2e}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-go{width:100%;padding:13px;border-radius:11px;background:linear-gradient(135deg,rgba(201,168,76,.25),rgba(124,111,160,.25));border:1px solid var(--gold);color:var(--gold);cursor:pointer;font-family:'Noto Serif TC',serif;font-size:.92rem;letter-spacing:.07em;transition:all .25s}
+.btn-go:hover{background:linear-gradient(135deg,rgba(201,168,76,.42),rgba(124,111,160,.38))}
+.err{color:var(--red);font-size:.75rem;margin-top:6px;min-height:18px;text-align:center}
+/* Hero */
+.hero{background:linear-gradient(175deg,#0f1028 0%,#09091a 70%,var(--bg) 100%);padding:24px 18px 16px;text-align:center;border-bottom:1px solid var(--border);position:relative}
+.hero-btns{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.hbtn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:4px 10px;color:var(--dim);font-size:.68rem;cursor:pointer;font-family:'Noto Serif TC',serif;white-space:nowrap;transition:all .2s}
+.hbtn:hover{border-color:var(--gold);color:var(--gold)}
+.ava{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--gold));display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto 10px;box-shadow:0 0 18px rgba(201,168,76,.28)}
+.hero-name{font-family:'Cinzel',serif;font-size:1.05rem;color:var(--gold2);margin-bottom:10px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:18px;font-size:.71rem;border:1px solid var(--border);background:rgba(201,168,76,.08);color:var(--gold2)}
+/* Week nav — FIX #2: compact, date + W in one row */
+.wnav{display:flex;align-items:center;gap:0;padding:12px 16px 0;background:var(--card);border-bottom:1px solid var(--border)}
+.wyear{font-size:.7rem;color:var(--dim);padding:8px 0;text-align:center;background:var(--card)}
+.wnb{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--dim);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;flex-shrink:0;transition:all .2s}
+.wnb:hover{border-color:var(--gold);color:var(--gold)}
+.wlbl{flex:1;text-align:center;font-size:.83rem;color:var(--gold2);padding:0 8px;line-height:1.4}
+/* Sections */
+.sec{padding:14px 16px 0}
+.slbl{font-size:.63rem;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.slbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.lgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.lt{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:11px 7px;text-align:center}
+.llt{font-size:.6rem;color:var(--dim);margin-bottom:4px}
+.llv{font-size:.79rem;color:var(--gold2);font-weight:700;line-height:1.35}
+.agrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.atile{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px 7px 11px;text-align:center;cursor:pointer;transition:all .2s}
+.atile:hover{border-color:rgba(201,168,76,.5);transform:translateY(-2px)}
+.drow{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:11px;margin-bottom:7px}
+.dr-d{font-size:.7rem;color:var(--dim);min-width:60px}
+.dr-m{font-size:.9rem}
+.dr-t{font-size:.78rem;color:var(--text);flex:1;line-height:1.45}
+.dtag{font-size:.63rem;padding:2px 7px;border-radius:9px;border:1px solid;flex-shrink:0;white-space:nowrap}
+.dtag.up{border-color:rgba(93,191,138,.4);color:var(--green)}
+.dtag.mid{border-color:var(--border);color:var(--gold)}
+.dtag.low{border-color:rgba(224,112,112,.3);color:var(--red)}
+/* Modal */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:100;align-items:flex-end;justify-content:center}
+.modal.open{display:flex}
+.msheet{background:#0e0e1c;border:1px solid var(--border);border-radius:18px 18px 0 0;padding:20px 18px 34px;width:100%;max-width:480px;max-height:76vh;overflow-y:auto}
+.mhead{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.mclose{margin-left:auto;background:none;border:none;color:var(--dim);font-size:1.25rem;cursor:pointer}
+.mtrend{background:rgba(124,111,160,.12);border-left:3px solid var(--violet);border-radius:0 7px 7px 0;padding:9px 12px;font-size:.81rem;color:var(--vl);line-height:1.72;margin-bottom:11px}
+.macts{list-style:none}
+.macts li{padding:6px 0;font-size:.83rem;color:var(--text);line-height:1.5;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:7px}
+.macts li:before{content:'▸';color:var(--gold);flex-shrink:0}
+.macts li:last-child{border-bottom:none}
 </style>
 </head>
 <body>
-<button class="lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
-<div class="hero">
-  <h1 id="t-title">🔮 多人占星週報產生器</h1>
-  <p id="t-subtitle">輸入生日，即時生成個人化週運報告</p>
+<canvas id="bg"></canvas>
+<div class="wrap">
+
+<!-- FORM -->
+<div id="formPage">
+  <div class="fh">
+    <span class="gl">🌙</span>
+    <h1>個人化占星週報</h1>
+    <p>PERSONALIZED WEEKLY ASTROLOGY · 2026</p>
+  </div>
+  <div class="lang-row">
+    <div class="lang-wrap">
+      <button class="lb" data-l="zh" onclick="setLang('zh')">中文</button>
+      <button class="lb" data-l="en" onclick="setLang('en')">English</button>
+    </div>
+  </div>
+  <div class="fc">
+    <div class="fc-h2" id="form-h2">☽ 輸入出生資料</div>
+    <div class="fi"><label id="lbl-name">姓名</label><input type="text" id="f-name" placeholder="你的名字" maxlength="20"></div>
+    <div class="r2">
+      <div class="fi"><label id="lbl-date">出生日期</label><input type="date" id="f-date" value="1990-01-01"></div>
+      <div class="fi"><label id="lbl-time">出生時間</label><input type="time" id="f-time" value="08:00"></div>
+    </div>
+    <div class="r2">
+      <div class="fi"><label id="lbl-city">出生城市</label><input type="text" id="f-city" placeholder="例：台北" maxlength="20"></div>
+      <div class="fi"><label id="lbl-gender">性別</label>
+        <select id="f-gender"><option value="F">女 Female</option><option value="M">男 Male</option><option value="N">不指定</option></select>
+      </div>
+    </div>
+    <div class="fi"><label id="lbl-lat">出生地緯度（選填）</label><input type="number" id="f-lat" placeholder="例：25.04（台北）" step="0.01" min="-90" max="90"></div>
+  </div>
+  <button class="btn-go" id="btn-go" onclick="generateReport()">✦ 產生我的個人化週報</button>
+  <div class="err" id="errMsg"></div>
 </div>
-<div class="form-wrap">
-  <div class="sec-label" id="t-formLabel">📋 輸入基本資料</div>
-  <div class="form-row"><label id="t-nameLabel">稱呼（可選）</label><input type="text" id="f-name" placeholder="例：小明、王老師"></div>
-  <div class="form-row"><label id="t-bdateLabel">出生日期 *</label><input type="date" id="f-bdate" max="2010-12-31" min="1900-01-01"><div class="date-hint" id="t-dateHint">點擊選擇日期 · iOS 自動顯示滾輪選取器</div></div>
-  <div class="form-row"><label id="t-btimeLabel">出生時間（選填，用於估算上升星座）</label><input type="time" id="f-btime"></div>
-  <div class="form-row"><label id="t-placeLabel">出生地點（選填）</label><input type="text" id="f-place" placeholder="例：台北、東京、紐約"></div>
-  <div class="err-box" id="err-msg"></div>
-  <button class="btn-submit" onclick="generate()" id="t-submitBtn">✨ 產生我的週運報告</button>
+
+<!-- REPORT -->
+<div id="reportPage">
+  <div class="hero">
+    <div class="hero-btns">
+      <button class="hbtn" id="edit-btn" onclick="goEdit()">✎ 編輯資料</button>
+      <button class="hbtn" id="save-btn" onclick="saveReport()">💾 儲存週報</button>
+    </div>
+    <div class="ava" id="rAva">🌙</div>
+    <div class="hero-name" id="rName"></div>
+    <div class="tags" id="rTags"></div>
+    <div class="lang-row">
+      <div class="lang-wrap">
+        <button class="lb" data-l="zh" onclick="setLang('zh')">中文</button>
+        <button class="lb" data-l="en" onclick="setLang('en')">English</button>
+      </div>
+    </div>
+  </div>
+  <div class="wyear" id="wYear"></div>
+  <div class="wnav">
+    <button class="wnb" onclick="changeWeek(-1)">◀</button>
+    <div class="wlbl" id="wLbl"></div>
+    <button class="wnb" onclick="changeWeek(1)">▶</button>
+  </div>
+  <div class="sec"><div class="slbl" id="sl1">✨ 本週幸運元素</div><div class="lgrid" id="luckyGrid"></div></div>
+  <div class="sec" style="margin-top:16px"><div class="slbl" id="sl2">📊 九大領域週運</div><div class="agrid" id="areasGrid"></div></div>
+  <div class="sec" style="margin-top:16px"><div class="slbl" id="sl3">📅 每日運勢</div><div id="dailyList"></div></div>
 </div>
-<div id="result">
-  <div class="result-header">
-    <h2 id="r-name">🔮 個人化週運</h2>
-    <p id="r-week"></p>
-    <div class="signs-row" id="r-signs"></div>
+
+</div>
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="msheet">
+    <div class="mhead">
+      <span style="font-size:1.4rem" id="dIco"></span>
+      <span style="font-size:.94rem;color:var(--gold);font-weight:600" id="dTitle"></span>
+      <button class="mclose" onclick="closeModal()">✕</button>
+    </div>
+    <div id="dStars" style="font-size:1.05rem;margin-bottom:11px"></div>
+    <div class="mtrend" id="dTrend"></div>
+    <ul class="macts" id="dActs"></ul>
   </div>
-  <div class="lucky-bar">
-    <h3 id="t-luckyTitle">✨ 本週幸運元素</h3>
-    <div class="lucky-row" id="r-lucky"></div>
-  </div>
-  <div class="main-pad">
-    <div class="rsec" id="t-readingLabel">🌟 本週占星解讀</div>
-    <div id="r-reading"></div>
-    <div class="rsec" id="t-scoresLabel">📊 九大領域週運</div>
-    <div class="scores-grid" id="r-scores"></div>
-    <div class="rsec" id="t-daysLabel">📅 每日運勢</div>
-    <div id="r-days"></div>
-    <div class="rsec" id="t-adviceLabel">💡 本週建議</div>
-    <div id="r-advice"></div>
-  </div>
-  <div class="footer-note" id="t-footer">🔮 依據蘇珊米勒占星方法<br>參考：Susan Miller AstrologyZone · Jean Meeus 天文計算</div>
 </div>
 <script>
-var T={zh:{title:'🔮 多人占星週報產生器',subtitle:'輸入生日，即時生成個人化週運報告',formLabel:'📋 輸入基本資料',nameLabel:'稱呼（可選）',namePlaceholder:'例：小明、王老師',bdateLabel:'出生日期 *',dateHint:'點擊選擇日期 · iOS 自動顯示滾輪選取器',btimeLabel:'出生時間（選填，用於估算上升星座）',placeLabel:'出生地點（選填）',placePlaceholder:'例：台北、東京、紐約',submitBtn:'✨ 產生我的週運報告',luckyTitle:'✨ 本週幸運元素',luckyColor:'幸運色',luckyNum:'幸運數字',luckyDay:'幸運日',luckyWord:'關鍵詞',readingLabel:'🌟 本週占星解讀',scoresLabel:'📊 九大領域週運',daysLabel:'📅 每日運勢',luckyColorLabel:'今日幸運色',adviceLabel:'💡 本週建議',footer:'🔮 依據蘇珊米勒占星方法<br>參考：Susan Miller AstrologyZone · Jean Meeus 天文計算',weekLabel:function(y,w,ms,me,ds,de){return y+'年 W'+w+' · '+ms+'月'+ds+'日 — '+me+'月'+de+'日';},resultTitle:function(name){return '🔮 '+(name?name+'的':'')+'個人化週運';},errNoDate:'請選擇出生日期！',errBadYear:'請輸入正確的出生年份（1900-2010）',domains:['事業求職','學習考試','財務理財','感情人際','家庭家人','健康身體','旅行交通','心靈修行','志工服務'],wdays:['一','二','三','四','五','六','日'],wdayPrefix:'週',highLabels:['幸運','吉祥','大吉','順暢'],medLabels:['平穩','調整','觀察','蓄力'],sunLabel:'太陽',risingLabel:'上升',readingTags:['🪐 行星影響','💫 機遇方向','⚡ 注意事項'],adviceTitle:function(sn){return '✨ '+sn+'本週重點';},langBtn:'EN'},en:{title:'🔮 Astrology Weekly Report',subtitle:'Enter your birthday for your personalized weekly forecast',formLabel:'📋 Enter Your Info',nameLabel:'Name (optional)',namePlaceholder:'e.g. Alex, Ms. Lee',bdateLabel:'Birth Date *',dateHint:'Tap to select date · iOS wheel picker auto-shows',btimeLabel:'Birth Time (optional, for Rising Sign)',placeLabel:'Birth Place (optional)',placePlaceholder:'e.g. Taipei, Tokyo, New York',submitBtn:'✨ Generate My Weekly Report',luckyTitle:'✨ Lucky Elements This Week',luckyColor:'Lucky Color',luckyNum:'Lucky Number',luckyDay:'Lucky Day',luckyWord:'Keywords',readingLabel:'🌟 Weekly Astrology Reading',scoresLabel:'📊 9-Domain Weekly Fortune',daysLabel:'📅 Daily Fortune',luckyColorLabel:"Today's Lucky Color",adviceLabel:'💡 Weekly Advice',footer:'🔮 Based on Susan Miller Astrology Method<br>Reference: AstrologyZone · Jean Meeus Astronomical Calculations',weekLabel:function(y,w,ms,me,ds,de){return y+' W'+w+' · '+ms+'/'+ds+' — '+me+'/'+de;},resultTitle:function(name){return '🔮 '+(name?name+"'s ":'')+'Weekly Fortune';},errNoDate:'Please select your birth date!',errBadYear:'Please enter a valid birth year (1900-2010)',domains:['Career','Study & Exams','Finance','Love & Social','Family & Parents','Health','Travel','Spirituality','Volunteer'],wdays:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],wdayPrefix:'',highLabels:['Lucky','Auspicious','Excellent','Flowing'],medLabels:['Stable','Adjust','Observe','Recharge'],sunLabel:'Sun',risingLabel:'Rising',readingTags:['🪐 Planetary Influence','💫 Opportunities','⚡ Key Notes'],adviceTitle:function(sn){return '✨ '+sn+" — This Week's Focus";},langBtn:'中文'}};
-var SIGN_EN={'水瓶座':'Aquarius','雙魚座':'Pisces','牡羊座':'Aries','金牛座':'Taurus','雙子座':'Gemini','巨蟹座':'Cancer','獅子座':'Leo','處女座':'Virgo','天秤座':'Libra','天蠍座':'Scorpio','射手座':'Sagittarius','摩羯座':'Capricorn'};
-var lang=localStorage.getItem('oracleLang')||(navigator.language&&navigator.language.startsWith('zh')?'zh':'en');
-function applyLang(){var t=T[lang];function s(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v;}s('t-title',t.title);s('t-subtitle',t.subtitle);s('t-formLabel',t.formLabel);s('t-nameLabel',t.nameLabel);s('t-bdateLabel',t.bdateLabel);s('t-dateHint',t.dateHint);s('t-btimeLabel',t.btimeLabel);s('t-placeLabel',t.placeLabel);s('t-submitBtn',t.submitBtn);s('t-luckyTitle',t.luckyTitle);s('t-readingLabel',t.readingLabel);s('t-scoresLabel',t.scoresLabel);s('t-daysLabel',t.daysLabel);s('t-adviceLabel',t.adviceLabel);s('t-footer',t.footer);s('langBtn',t.langBtn);document.getElementById('f-name').placeholder=t.namePlaceholder;document.getElementById('f-place').placeholder=t.placePlaceholder;document.title=t.title.replace(/🔮 /,'');document.documentElement.lang=lang==='zh'?'zh-Hant':'en';if(document.getElementById('result').style.display==='block')generate();}
-function toggleLang(){lang=lang==='zh'?'en':'zh';localStorage.setItem('oracleLang',lang);applyLang();}
-function getWeekInfo(){var now=new Date();var dow=now.getDay()||7;var mon=new Date(now);mon.setDate(now.getDate()-dow+1);mon.setHours(0,0,0,0);var d=new Date(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()));d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7));var ys=new Date(Date.UTC(d.getUTCFullYear(),0,1));var wk=Math.ceil(((d-ys)/86400000+1)/7);var yr=d.getUTCFullYear();var dates=[],wdates=[];for(var i=0;i<7;i++){var dd=new Date(mon);dd.setDate(mon.getDate()+i);dates.push(dd);wdates.push((dd.getMonth()+1)+'/'+dd.getDate());}return{year:yr,week:wk,mon:mon,sun:dates[6],dates:dates,wdates:wdates};}
-function calcLevels(wk){var sets=[['med','high','high','med','med','high','med'],['high','med','high','med','high','med','med'],['med','med','high','high','med','high','high'],['high','high','med','med','high','med','med'],['med','high','med','high','med','high','med']];return sets[wk%5];}
-function getLevelTexts(levels){var t=T[lang];var hi=0,mi=0;return levels.map(function(lv){if(lv==='high')return t.highLabels[hi++%t.highLabels.length];else return t.medLabels[mi++%t.medLabels.length];});}
-var DAY_POOL={high_zh:['幸運能量滿溢，主動出擊事半功倍','貴人運旺，重要溝通最佳時機','直覺清晰，靈感湧現放膽行動','全面順暢，重要決定可放心推進','桃花財運雙旺，正向能量圍繞','創造力強，展現自我最佳時機','行動力滿分，突破瓶頸的關鍵日','能量高峰，啟動新計畫的黃金時刻','人際加分，合作洽談結果理想','自信心強，展現實力的好日子'],med_zh:['保持穩定節奏，避免衝動決策','耐心推進，後半段能量漸升','適合整理思緒，沉澱比行動重要','謹慎評估，觀察多於表達','調整步伐，照顧身心平衡為主','低調蓄力，為下一波高峰儲備','處理細節，穩健前行不求快','回顧反思，鞏固已有成果','放慢腳步，與自己對話的好時機','保留彈性，配合環境靈活應對'],high_en:['Lucky energy peaks — take initiative for double results','Benefactors appear; ideal timing for important conversations','Intuition flows clearly; act boldly on inspired ideas','Everything runs smoothly; push important decisions forward','Romance and finances both shine with positive energy','Creativity surges; the best day to express your authentic self','Full of drive; the key day to break through any bottleneck','Energy peaks; golden moment to launch new plans','Social connections flourish; collaborations yield ideal results','Confidence is high; a great day to demonstrate your strengths'],med_en:['Maintain steady rhythm; avoid impulsive decisions','Patient progress; energy builds toward the latter half','Good day to organize thoughts; reflection beats rushing','Assess carefully; observe more than you express','Adjust your pace; focus on balancing mind and body','Stay low-key and recharge; conserve energy for the next peak','Handle details with care; steady and unhurried wins the race','Review and consolidate; reinforce the progress already made','Slow down; a good time to check in with yourself','Stay flexible; adapt fluidly to changing circumstances']};
-function getDayText(level,dayIdx,weekNum,signIdx){var pool=level==='high'?(lang==='zh'?DAY_POOL.high_zh:DAY_POOL.high_en):(lang==='zh'?DAY_POOL.med_zh:DAY_POOL.med_en);var seed=(weekNum*13+dayIdx*7+signIdx*3)%pool.length;return pool[seed];}
-var SIGN_DAY_COLORS={'牡羊座':['珊瑚紅','深紅','橘金','玫瑰紅','亮橘','金黃','胭脂紅'],'金牛座':['翠綠','靛藍','象牙白','淡粉','薄荷綠','深藍','奶油金'],'雙子座':['檸檬黃','薄荷綠','天空藍','鮮黃','橘黃','淡藍','銀白'],'巨蟹座':['珍珠白','銀灰','淡藍','奶油白','冰藍','銀色','月光白'],'獅子座':['金色','橙黃','亮橘','暖金','珊瑚橘','陽光黃','閃金'],'處女座':['橄欖綠','米白','深藍','淡綠','象牙','藍灰','砂岩棕'],'天秤座':['玫瑰粉','天空藍','淡紫','嫩粉','薰衣草','珊瑚粉','杏粉'],'天蠍座':['深紅','墨黑','暗紫','酒紅','深藍','灰黑','暗棗紅'],'射手座':['寶藍','紫色','鈷藍','紫羅蘭','靛青','深紫','藏青'],'摩羯座':['深棕','墨綠','炭灰','深咖','岩石灰','橄欖棕','煙灰'],'水瓶座':['電藍','銀色','湖水藍','亮藍','薄荷','鋼藍','冰藍'],'雙魚座':['海藍','薰衣草','水藍','珊瑚','淡紫','霧藍','淡青']};
-var SIGN_DAY_COLORS_EN={'牡羊座':['Coral Red','Deep Red','Orange Gold','Rose Red','Bright Orange','Golden Yellow','Carmine'],'金牛座':['Emerald','Indigo','Ivory','Light Pink','Mint Green','Deep Blue','Cream Gold'],'雙子座':['Lemon Yellow','Mint Green','Sky Blue','Vivid Yellow','Amber','Light Blue','Silver White'],'巨蟹座':['Pearl White','Silver Grey','Light Blue','Cream','Ice Blue','Silver','Moonlight White'],'獅子座':['Gold','Orange Yellow','Bright Orange','Warm Gold','Coral Orange','Sunshine Yellow','Flash Gold'],'處女座':['Olive Green','Off-White','Deep Blue','Light Green','Ivory','Blue Grey','Sandstone'],'天秤座':['Rose Pink','Sky Blue','Lavender','Soft Pink','Mauve','Coral Pink','Apricot'],'天蠍座':['Deep Red','Jet Black','Dark Purple','Burgundy','Deep Blue','Charcoal','Dark Maroon'],'射手座':['Royal Blue','Purple','Cobalt Blue','Violet','Indigo','Deep Purple','Navy'],'摩羯座':['Dark Brown','Forest Green','Charcoal','Dark Coffee','Stone Grey','Olive Brown','Smoke Grey'],'水瓶座':['Electric Blue','Silver','Aqua Blue','Bright Blue','Mint','Steel Blue','Ice Blue'],'雙魚座':['Ocean Blue','Lavender','Aqua','Coral','Light Purple','Mist Blue','Pale Cyan']};
-var COLOR_HEX={'珊瑚紅':'#FF6B6B','深紅':'#8B0000','橘金':'#FFA500','玫瑰紅':'#C21E56','亮橘':'#FF7F00','金黃':'#FFD700','胭脂紅':'#DC143C','翠綠':'#00A550','靛藍':'#4B0082','象牙白':'#F5F5DC','淡粉':'#FFB6C1','薄荷綠':'#98FF98','深藍':'#00008B','奶油金':'#F5DEB3','檸檬黃':'#FFF44F','天空藍':'#87CEEB','鮮黃':'#FFEE00','橘黃':'#FFAE42','淡藍':'#ADD8E6','銀白':'#E8E8E8','珍珠白':'#F0EAD6','銀灰':'#909090','奶油白':'#FAFAFA','冰藍':'#99C5C4','銀色':'#C0C0C0','月光白':'#F4F0EC','金色':'#FFD700','橙黃':'#FFA040','暖金':'#FFB347','珊瑚橘':'#FF7F50','陽光黃':'#FFE066','閃金':'#FFDF00','橄欖綠':'#808000','米白':'#FAEBD7','淡綠':'#90EE90','象牙':'#FFFFF0','藍灰':'#6699CC','砂岩棕':'#C2B280','玫瑰粉':'#FF66AA','淡紫':'#DDA0DD','嫩粉':'#FFB3DE','薰衣草':'#E6E6FA','珊瑚粉':'#F88379','杏粉':'#FBCEB1','墨黑':'#1a1a1a','暗紫':'#4A235A','酒紅':'#722F37','灰黑':'#333333','暗棗紅':'#5C1A1A','寶藍':'#1C39BB','紫色':'#800080','鈷藍':'#0047AB','紫羅蘭':'#EE82EE','靛青':'#4B0082','深紫':'#301934','藏青':'#003153','深棕':'#5C3317','墨綠':'#1B4332','炭灰':'#36454F','深咖':'#4B3832','岩石灰':'#8B8682','橄欖棕':'#6B4226','煙灰':'#848884','電藍':'#007FFF','湖水藍':'#4DB8B8','亮藍':'#0080FF','薄荷':'#98FF98','鋼藍':'#4682B4','海藍':'#006994','水藍':'#00B4D8','霧藍':'#C5D8E8','淡青':'#E0F7FA'};
-function getColorHex(n){return COLOR_HEX[n]||'#888888';}
-var SIGNS=[{m:1,d:20,n:'水瓶座',e:'♒'},{m:2,d:19,n:'雙魚座',e:'♓'},{m:3,d:21,n:'牡羊座',e:'♈'},{m:4,d:20,n:'金牛座',e:'♉'},{m:5,d:21,n:'雙子座',e:'♊'},{m:6,d:21,n:'巨蟹座',e:'♋'},{m:7,d:23,n:'獅子座',e:'♌'},{m:8,d:23,n:'處女座',e:'♍'},{m:9,d:23,n:'天秤座',e:'♎'},{m:10,d:23,n:'天蠍座',e:'♏'},{m:11,d:22,n:'射手座',e:'♐'},{m:12,d:22,n:'摩羯座',e:'♑'}];
-function getSun(m,d){for(var i=0;i<SIGNS.length;i++){if(m===SIGNS[i].m&&d>=SIGNS[i].d)return SIGNS[i];if(i<SIGNS.length-1&&m===SIGNS[i+1].m&&d<SIGNS[i+1].d)return SIGNS[i];}if(m===1&&d<20)return{n:'摩羯座',e:'♑'};if(m===12&&d>=22)return{n:'摩羯座',e:'♑'};return{n:'金牛座',e:'♉'};}
-function getAsc(h,mi){var A=['天秤座','天蠍座','射手座','摩羯座','水瓶座','雙魚座','牡羊座','金牛座','雙子座','巨蟹座','獅子座','處女座'];return A[Math.floor((h*60+mi)/(1440/12))%12];}
-var DB={'牡羊座':{sc:[5,4,4,3,4,4,5,4,3],reading:'本週太陽過金牛區間，行動能量充沛但需避免急進。金星順行帶來人際和諧，積壓的誤會正在消融，本週後半段是主動修復關係的最佳時機。財務方面宜保守，避免衝動消費。',reading_en:'The Sun in Taurus tempers your fire with grounded energy. Venus direct dissolves lingering tensions — the latter half of this week is ideal for patching up misunderstandings. Financially, stay conservative and avoid impulse spending.',tip:'金星順行，積壓人際開始鬆動。本週後半段為最佳社交時機，主動出擊效果加倍。',tip_en:'Venus direct eases social friction. The second half of this week is ideal for outreach and new connections.',lucky:{color:'紅・珊瑚橘',num:'1、9',day:'週一・週四',word:'衝刺・破冰'},lucky_en:{color:'Red · Coral Orange',num:'1, 9',day:'Mon · Thu',word:'Charge · Break Ice'}},
-'金牛座':{sc:[5,5,4,4,4,3,4,5,4],reading:'守護星金星順行，你正式迎來一段舒展自如的黃金窗口。本週特別適合展開重要洽談、提交企劃或進行財務規劃，貴人能量在週中前後最強。感情方面溫暖穩定，舊緣有重新連結的機會。',reading_en:'With ruling Venus direct, you enter a golden window of ease. This week favors important negotiations, proposals, and financial planning — benefactor energy peaks mid-week. In love, warmth and stability prevail; old connections may resurface.',tip:'守護星金星順行加持，近期最大受益星座！口試、求職、財務計畫全面順暢，把握機會大步前進。',tip_en:'Ruling Venus direct makes you one of the biggest winners this season. Interviews, finances, and plans all flow smoothly.',lucky:{color:'靛藍・象牙白',num:'6、14、21',day:'週三・週四',word:'重生・展開'},lucky_en:{color:'Indigo · Ivory',num:'6, 14, 21',day:'Wed · Thu',word:'Rebirth · Begin'}},
-'雙子座':{sc:[4,5,5,3,4,4,4,4,4],reading:'木星在你的星座持續加持，2026 是雙子擴展版圖的關鍵年。本週水星在牡羊帶來強烈表達能量，溝通、寫作、談判皆事半功倍。感情方面需注意話多傷人，放慢節奏聆聽對方。',reading_en:'Jupiter in your sign continues its blessings — 2026 is a pivotal expansion year. Mercury in Aries fires up communication; writing, pitching, and negotiating yield double results. In relationships, slow down and listen more.',tip:'木星在你的星座，2026 年是雙子的黃金年！水星牡羊加持，溝通表達無往不利。',tip_en:'Jupiter in your sign makes 2026 your golden year. Mercury in Aries boosts all communication effortlessly.',lucky:{color:'黃・薄荷綠',num:'3、5、12',day:'週三・週五',word:'溝通・連結'},lucky_en:{color:'Yellow · Mint Green',num:'3, 5, 12',day:'Wed · Fri',word:'Connect · Communicate'}},
-'巨蟹座':{sc:[3,4,3,5,5,3,4,5,5],reading:'火星繼續運行你的星座，情緒能量強大且波動較大，需學習引導而非壓抑。本週家庭、家人議題浮上檯面，與父母或長輩溝通需要更多耐心。直覺力超強是本週最大優勢，信任內心感受做決策。',reading_en:'Mars continues through your sign, amplifying emotional intensity — channel it rather than suppress it. Family matters and communication with elders require extra patience this week. Your greatest asset is razor-sharp intuition; trust your gut for key decisions.',tip:'火星在巨蟹，內心能量強大。先照顧好自己，家人關係是本週重點。',tip_en:'Mars in Cancer amplifies inner strength. Care for yourself first — family connections are this week\'s focus.',lucky:{color:'銀・珍珠白',num:'2、7',day:'週一・週六',word:'守護・直覺'},lucky_en:{color:'Silver · Pearl White',num:'2, 7',day:'Mon · Sat',word:'Protect · Intuition'}},
-'獅子座':{sc:[4,3,4,4,3,5,5,4,4],reading:'太陽在金牛對你的宮位形成穩固能量，本週重心在鞏固既有成果而非開拓新局。週末前後能量明顯上揚，是展現個人魅力的最佳時機。感情方面放下自尊、主動表達，效果意外地好。',reading_en:'The Sun in Taurus stabilizes your chart — consolidating existing achievements is favored over breaking new ground. Energy builds toward the weekend, offering an ideal window to showcase your charisma. In love, set ego aside and express yourself openly.',tip:'本週適合展現成果、與人分享成就，展現你與生俱來的魅力與自信。',tip_en:'A great week to showcase results — let your natural charisma and confidence take center stage.',lucky:{color:'金・橙',num:'1、5、10',day:'週日・週二',word:'閃耀・展現'},lucky_en:{color:'Gold · Orange',num:'1, 5, 10',day:'Sun · Tue',word:'Shine · Perform'}},
-'處女座':{sc:[5,5,3,4,5,4,4,5,5],reading:'土星在對宮雙魚持續提醒你，完美主義可能成為前進的阻力。本週工作效率極高，尤其需要分析、研究、整理的任務。服務他人帶來內心滿足感，志工或助人工作特別有意義。注意避免過度勞累。',reading_en:'Saturn in opposing Pisces reminds you that perfectionism can become a barrier. Work efficiency is exceptionally high for analytical and organizational tasks. Helping others brings deep fulfillment. Watch out for overwork.',tip:'土星在雙魚（對宮）提醒平衡付出與接受。本週重視完美，記得適當放鬆。',tip_en:'Saturn in Pisces reminds you to balance giving and receiving. Strive for excellence, but remember to unwind.',lucky:{color:'橄欖綠・米白',num:'4、8',day:'週三・週六',word:'精準・服務'},lucky_en:{color:'Olive Green · Off-White',num:'4, 8',day:'Wed · Sat',word:'Precision · Service'}},
-'天秤座':{sc:[4,4,5,5,3,4,5,4,4],reading:'守護星金星順行，天秤座迎來近期難得的能量解凍時刻。被擱置的感情、美學計畫、合作關係，此刻重新獲得推進的動力。本週特別適合簽約、締結合作或表白心意。財務運勢同步改善。',reading_en:'Ruling Venus now direct ushers in a rare thaw for Libra. Stalled romances, aesthetic projects, and partnerships regain momentum. This week is especially favorable for signing contracts, forming collaborations, or confessing feelings.',tip:'守護星金星順行，天秤迎來能量全面解凍！感情、美學計畫、人際往來同步好轉，近期難得的黃金窗口。',tip_en:'Ruling Venus direct opens a golden window for relationships, aesthetic projects, and social connections.',lucky:{color:'玫瑰粉・淡藍',num:'6、15',day:'週五・週日',word:'和諧・美麗'},lucky_en:{color:'Rose Pink · Light Blue',num:'6, 15',day:'Fri · Sun',word:'Harmony · Beauty'}},
-'天蠍座':{sc:[3,4,4,4,5,3,4,5,4],reading:'本週月亮過天蠍時賦予你超強的洞察力，看穿表象、感知真相的能力遠超他人。這份直覺力應用在工作決策或人際判斷上效果顯著。能量在週中後段轉為務實，適合落實先前的計畫。財務宜保守。',reading_en:'When the Moon transits Scorpio, you gain extraordinary perception — your ability to see through surfaces far exceeds others. Apply this intuition to work decisions and relationship assessments. After mid-week, energy shifts to practical ground — perfect for executing prior plans.',tip:'月亮過天蠍時直覺力超強，善用洞察力看穿本質。本週中段後能量轉為務實，適合落實計畫。',tip_en:'When the Moon passes through Scorpio, intuition peaks. Mid-week onward, energy shifts toward practical action.',lucky:{color:'深紅・黑',num:'8、11',day:'週二・週四',word:'洞察・蛻變'},lucky_en:{color:'Deep Red · Black',num:'8, 11',day:'Tue · Thu',word:'Insight · Transform'}},
-'射手座':{sc:[4,3,4,3,5,4,5,5,5],reading:'木星在對宮雙子持續擴展你的視野，2026 上半年是射手吸收知識、擴大人脈的黃金期。本週旅行、學習、哲學思考都能帶來實質收穫。週五後能量轉強，適合戶外活動或探索新事物。',reading_en:'Jupiter in opposing Gemini broadens your horizons — the first half of 2026 is golden for expanding knowledge and networks. Travel, learning, and philosophical exploration yield tangible gains. Energy strengthens after Friday, ideal for outdoor activities.',tip:'守護星木星在雙子，2026 上半年擴展視野，旅遊與學習帶來豐富啟發。',tip_en:'Jupiter in Gemini expands your horizons through 2026. Travel and learning bring rich inspiration.',lucky:{color:'紫・寶藍',num:'3、9',day:'週四・週日',word:'探索・擴展'},lucky_en:{color:'Purple · Royal Blue',num:'3, 9',day:'Thu · Sun',word:'Explore · Expand'}},
-'摩羯座':{sc:[5,4,4,3,5,3,4,4,5],reading:'月亮過摩羯時段是本週精神能量的高峰，思維清晰、判斷準確，重要決定應在此時段做出。土星在雙魚提醒你長線布局比短線衝刺更重要。家庭責任感強，但記得把時間留給自己休息充電。',reading_en:'The Moon\'s transit through Capricorn marks your mental peak — thinking is clear and judgment is sharp, the best time for important decisions. Saturn in Pisces reminds you that long-term positioning beats short-term sprints. Reserve time to rest and recharge.',tip:'月亮過摩羯時精神狀態回到最佳，是本週能量高峰！維持身心靈平衡是長遠關鍵。',tip_en:'When the Moon transits Capricorn, mental clarity peaks — the best time for important decisions this week.',lucky:{color:'深棕・墨綠',num:'4、8、22',day:'週三・週五',word:'踏實・登頂'},lucky_en:{color:'Dark Brown · Forest Green',num:'4, 8, 22',day:'Wed · Fri',word:'Grounded · Summit'}},
-'水瓶座':{sc:[4,5,4,4,4,5,4,4,4],reading:'冥王星長期停駐水瓶，你的人生正在進行一場深層的結構性變革。本週水星在牡羊帶來充沛的行動力，是把創新想法付諸實踐的好時機。科技、社群、人脈拓展都有突破性進展。感情需理性與感性並重。',reading_en:'Pluto in your sign for the long haul signals deep structural transformation. Mercury in Aries delivers strong action energy this week — an ideal time to turn innovative ideas into reality. Tech, community, and networking see breakthrough developments.',tip:'冥王星入水瓶（長期），人生正在深層變革。本週水星牡羊帶來行動力，把想法付諸實踐。',tip_en:'Pluto in Aquarius signals deep transformation. Mercury in Aries fuels action — put your innovative ideas into motion.',lucky:{color:'電藍・銀',num:'4、11',day:'週二・週六',word:'創新・突破'},lucky_en:{color:'Electric Blue · Silver',num:'4, 11',day:'Tue · Sat',word:'Innovate · Break Through'}},
-'雙魚座':{sc:[3,4,3,5,4,4,4,5,5],reading:'土星在你的星座接近尾聲，這段時間的考驗正在轉化為你最堅實的內在力量。2026 年是雙魚重要轉型年，靈性修行與服務他人是最高召喚。本週直覺與創作能量特別強，藝術表達有深刻收穫。',reading_en:'Saturn in Pisces approaches its final chapter — the trials of this period crystallize into deep inner strength. 2026 is a pivotal transformation year; spiritual practice and service answer your highest calling. Intuition and creativity are especially potent this week.',tip:'土星在你的星座近尾聲，2026 年是雙魚的重要轉型期。靈性修行與服務是最高召喚。',tip_en:'Saturn in Pisces nears its end — 2026 is a major transformation year. Spiritual practice and service are your highest calling.',lucky:{color:'海藍・薰衣草',num:'7、12',day:'週一・週五',word:'靈感・流動'},lucky_en:{color:'Ocean Blue · Lavender',num:'7, 12',day:'Mon · Fri',word:'Inspiration · Flow'}}};
-var ICONS=['💼','📚','💰','❤️','🏠','💪','✈️','🧘','🌱'];
-function stars(n){return '⭐'.repeat(n)+'<span style="opacity:.2">'+'⭐'.repeat(5-n)+'</span>';}
-function showErr(msg){var el=document.getElementById('err-msg');el.style.display='block';el.textContent=msg;}
-function generate(){
-  document.getElementById('err-msg').style.display='none';
-  var t=T[lang];var WEEK=getWeekInfo();var LEVELS=calcLevels(WEEK.week);
-  var dateVal=document.getElementById('f-bdate').value;
-  var name=document.getElementById('f-name').value.trim();
-  var timeVal=document.getElementById('f-btime').value;
-  var place=document.getElementById('f-place').value.trim();
-  if(!dateVal){showErr(t.errNoDate);return;}
-  var parts=dateVal.split('-');var yr=parseInt(parts[0]),month=parseInt(parts[1]),day=parseInt(parts[2]);
-  if(yr<1900||yr>2010){showErr(t.errBadYear);return;}
-  var sun=getSun(month,day);var ascStr='';
-  if(timeVal){var tp=timeVal.split(':');ascStr=getAsc(parseInt(tp[0]),parseInt(tp[1]));}
-  var data=DB[sun.n]||DB['金牛座'];
-  var signIdx=0;for(var si=0;si<SIGNS.length;si++){if(SIGNS[si].n===sun.n){signIdx=si;break;}}
-  document.getElementById('r-name').textContent=t.resultTitle(name);
-  document.getElementById('r-week').textContent=t.weekLabel(WEEK.year,WEEK.week,WEEK.mon.getMonth()+1,WEEK.sun.getMonth()+1,WEEK.mon.getDate(),WEEK.sun.getDate());
-  var sunName=lang==='zh'?sun.n:(SIGN_EN[sun.n]||sun.n);
-  var ascName=ascStr?(lang==='zh'?ascStr:(SIGN_EN[ascStr]||ascStr)):'';
-  var signsHTML='<div class="sign-badge">☀️ '+t.sunLabel+' '+sun.e+' '+sunName+'</div>';
-  if(ascStr)signsHTML+='<div class="sign-badge">⬆️ '+t.risingLabel+' '+ascName+'</div>';
-  signsHTML+='<div class="sign-badge">🎂 '+yr+'/'+month+'/'+day+'</div>';
-  if(place)signsHTML+='<div class="sign-badge">📍 '+place+'</div>';
-  document.getElementById('r-signs').innerHTML=signsHTML;
-  var lk=lang==='zh'?data.lucky:data.lucky_en;
-  document.getElementById('r-lucky').innerHTML='<div class="lucky-item"><span class="lk">'+t.luckyColor+'</span><span class="lv">'+lk.color+'</span></div><div class="lucky-item"><span class="lk">'+t.luckyNum+'</span><span class="lv">'+lk.num+'</span></div><div class="lucky-item"><span class="lk">'+t.luckyDay+'</span><span class="lv">'+lk.day+'</span></div><div class="lucky-item"><span class="lk">'+t.luckyWord+'</span><span class="lv">'+lk.word+'</span></div>';
-  var reading=lang==='zh'?data.reading:data.reading_en;
-  var tags=t.readingTags;
-  var paras=reading.split(lang==='zh'?'。':'. ').filter(function(p){return p.trim().length>4;});
-  var rHTML='<div class="reading-box">';
-  paras.forEach(function(p,i){if(i<tags.length)rHTML+='<span class="reading-tag">'+tags[i]+'</span><br>';rHTML+='<p>'+(lang==='zh'?p+'。':p+'.')+'</p>';});
-  rHTML+='</div>';document.getElementById('r-reading').innerHTML=rHTML;
-  var doms=t.domains;var scHTML='';
-  for(var i=0;i<doms.length;i++){scHTML+='<div class="sc"><div class="si">'+ICONS[i]+'</div><div class="sn">'+doms[i]+'</div><div class="ss">'+stars(data.sc[i])+'</div></div>';}
-  document.getElementById('r-scores').innerHTML=scHTML;
-  var ltexts=getLevelTexts(LEVELS);
-  var dayColorsArr=lang==='zh'?(SIGN_DAY_COLORS[sun.n]||SIGN_DAY_COLORS['金牛座']):(SIGN_DAY_COLORS_EN[sun.n]||SIGN_DAY_COLORS_EN['金牛座']);
-  var dHTML='';
-  for(var j=0;j<7;j++){var wdayLabel=t.wdayPrefix+t.wdays[j];var dayTxt=getDayText(LEVELS[j],j,WEEK.week,signIdx);var colorName=dayColorsArr[j];var colorHex=getColorHex(colorName);dHTML+='<div class="day-card"><div class="day-top"><div><span class="day-name">'+wdayLabel+'</span> <span class="day-date">'+WEEK.wdates[j]+'</span></div><span class="day-lv lv-'+LEVELS[j]+'">'+ltexts[j]+'</span></div><div class="day-txt">'+dayTxt+'</div><div class="day-lucky-color"><span class="day-color-dot" style="background:'+colorHex+'"></span>'+t.luckyColorLabel+'：'+colorName+'</div></div>';}
-  document.getElementById('r-days').innerHTML=dHTML;
-  var tip=lang==='zh'?data.tip:data.tip_en;
-  document.getElementById('r-advice').innerHTML='<div class="advice-box"><h4>'+t.adviceTitle(sunName)+'</h4><p>'+tip+'</p></div>';
-  document.getElementById('result').style.display='block';
-  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+var SIGNS_ZH=["牡羊", "金牛", "雙子", "巨蟹", "獅子", "處女", "天秤", "天蠍", "射手", "魔羯", "水瓶", "雙魚"];
+var SIGNS_EN=["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+var SIGN_EM=["\u2648", "\u2649", "\u264a", "\u264b", "\u264c", "\u264d", "\u264e", "\u264f", "\u2650", "\u2651", "\u2652", "\u2653"];
+var AREAS_ZH=["事業求職", "學習考試", "財務理財", "感情人際", "家庭母親", "健康身體", "旅行交通", "心靈修行", "志工服務"];
+var AREAS_EN=["Career", "Study", "Finance", "Relationships", "Family", "Health", "Travel", "Spiritual", "Service"];
+var AREAS_IC=["\ud83d\udcbc", "\ud83d\udcda", "\ud83d\udcb0", "\u2764", "\ud83c\udfe0", "\ud83d\udcaa", "\u2708", "\ud83e\uddd8", "\ud83c\udf31"];
+var BASE_SCORES=[[5, 3, 4, 4, 3, 5, 4, 3, 4, 5, 4, 3], [4, 4, 5, 4, 3, 4, 4, 4, 3, 4, 5, 4], [4, 5, 3, 4, 4, 4, 5, 3, 3, 5, 3, 4], [4, 4, 5, 5, 4, 3, 5, 4, 4, 3, 4, 5], [4, 4, 3, 5, 5, 4, 3, 5, 3, 4, 3, 4], [3, 4, 4, 4, 5, 3, 4, 3, 4, 3, 5, 4], [5, 4, 4, 3, 4, 3, 4, 4, 5, 3, 3, 4], [5, 3, 4, 4, 3, 5, 3, 5, 4, 4, 4, 5], [4, 4, 4, 5, 4, 4, 4, 4, 5, 4, 4, 5]];
+var WEEK_PATTERNS=[[1, 1, 0, 0, 1, 0, 1, 1, 0], [0, 0, 1, 1, 0, 1, 0, 1, 1], [1, 0, 0, 0, 0, 1, 1, 0, 1], [0, 1, 1, 0, 1, 0, 0, 0, 0]];
+var LUCKY_COL_ZH=["深紅·黑", "珊瑚紅", "翡翠綠", "銀·白", "金·橙", "深藍·紫", "玫瑰·粉", "酒紅·金", "橄欖綠", "深咖啡", "天藍·白", "海綠·銀"];
+var LUCKY_COL_EN=["Crimson", "Coral", "Emerald", "Silver", "Gold", "Navy", "Rose", "Wine", "Olive", "Brown", "Sky Blue", "Sea Green"];
+var LUCKY_DAY_ZH=["週五·週日", "週五·週一", "週三·週六", "週二·週四", "週日·週四", "週三·週五", "週一·週五", "週二·週四", "週四·週日", "週六·週二", "週三·週六", "週一·週四"];
+var LUCKY_DAY_EN=["Fri\u00b7Sun", "Fri\u00b7Mon", "Wed\u00b7Sat", "Tue\u00b7Thu", "Sun\u00b7Thu", "Wed\u00b7Fri", "Mon\u00b7Fri", "Tue\u00b7Thu", "Thu\u00b7Sun", "Sat\u00b7Tue", "Wed\u00b7Sat", "Mon\u00b7Thu"];
+var LUCKY_KW_ZH=["突破·行動", "穩健·積累", "溝通·聯結", "直覺·滋養", "創意·發光", "整合·精進", "平衡·外交", "洞察·蛻變", "擴展·冒險", "踏實·建構", "創新·覺醒", "包容·釋放"];
+var LUCKY_KW_EN=["Breakthrough", "Accumulate", "Connect", "Intuition", "Shine", "Refine", "Balance", "Transform", "Expand", "Build", "Innovate", "Release"];
+var NUMS_MAP={"1": [1, 4], "2": [2, 7], "3": [3, 9], "4": [4, 6], "5": [5, 1], "6": [6, 8], "7": [7, 2], "8": [8, 3], "9": [9, 5], "11": [1, 2], "22": [4, 8]};
+var DAILY_MOODS=[["\ud83c\udf11", "\ud83c\udf12", "\ud83c\udf13", "\ud83c\udf14", "\ud83c\udf15", "\ud83c\udf16", "\ud83c\udf17", "\ud83c\udf18"], ["\u26a1", "\ud83d\udcab", "\ud83c\udf0a", "\ud83d\udd25", "\ud83c\udf31", "\u2601\ufe0f", "\u2728", "\ud83c\udf19"]];
+var DAILY_TAGS_ZH=[["新月", "高能", "轉換", "靈感", "穩定", "謹慎", "充電", "突破"], ["行動", "沉澱", "整合", "擴展", "收穫", "休養", "開創", "深化"]];
+var DAILY_TAGS_EN=[["NewMoon", "High", "Shift", "Inspired", "Steady", "Caution", "Recharge", "Breakthrough"], ["Action", "Reflect", "Integrate", "Expand", "Harvest", "Rest", "Launch", "Deepen"]];
+var DAILY_TEXT_ZH=["月亮能量充沛，適合推進重要事項，行動力強", "水星順行，溝通表達流暢，適合談判與交流", "金星能量上升，人際關係和諧，感情運旺", "火星活躍，執行力提升，適合處理積壓事務", "木星擴展力強，學習與旅行運勢佳，視野開闊", "土星穩健，適合規劃長遠目標，財務整理", "能量偏保守，適合內省與休養，避免衝動決策", "月亮方形外行星，情緒波動，保持觀察為主", "新月/滿月能量轉換點，適合書寫心願設立目標", "月亮入吉位，整體運勢上揚，把握機會行動"];
+var DAILY_TEXT_EN=["Moon energy peaks \u2014 push key initiatives forward with confidence", "Mercury direct \u2014 communication flows, ideal for negotiations", "Venus rising \u2014 harmonious relations and warm encounters await", "Mars active \u2014 executive power surges, tackle pending tasks", "Jupiter expands \u2014 learning and travel are especially favored", "Saturn grounds \u2014 plan long-term, organize finances", "Low-key energy \u2014 reflect and rest, avoid impulsive moves", "Moon squares outer planet \u2014 stay observant, emotions fluctuate", "Lunar phase shift \u2014 write intentions and set fresh goals", "Moon in favorable sign \u2014 overall fortune rises, seize the moment"];
+var DAILY_CLS=["up", "up", "up", "up", "up", "mid", "low", "low", "mid", "up"];
+var MOON_ZH=["新月", "眉月", "上弦月", "盈凸月", "滿月", "虧凸月", "下弦月", "殘月"];
+var MOON_EN=["New Moon", "Crescent", "First Quarter", "Gibbous", "Full Moon", "Waning Gibbous", "Last Quarter", "Balsamic"];
+var TRENDS_ZH=[["牡羊新月或本週重要行星相位，帶來強大的求職與事業起點能量，適合整備、主動出擊。", ["整理優勢與自我介紹亮點", "確認目標機會並規劃投件", "主動聯繫關鍵人脈", "本週末前完成求職心願設立"]], ["水星能量活躍，學習效率提升，思路清晰，適合閱讀、考試備戰與深度思考。", ["每天固定學習 1 小時", "整理重要筆記與弱點", "規劃下一階段目標", "善用本週行星能量重新出發"]], ["本週財務能量趨穩，適合整理帳目、規劃預算，避免衝動消費，聚焦長期規劃。", ["整理本月收支明細", "設定重大支出預算上限", "確認帳單截止日", "評估現金流計畫"]], ["金星或木星過境，人際能量開創，感情方面適合主動表達，積極建立新連結。", ["主動與重要的人連繫", "清楚表達自己的需求", "本週末許下感情心願", "留意身邊的新緣分"]], ["木星巨蟹座持續強化家庭連結，月亮過境家庭宮，是陪伴與關懷的最佳時機。", ["安排一次家庭陪伴時間", "關心家人健康與生活", "整理居家環境", "留意家庭溝通細節"]], ["本週注意充足休息與規律作息，能量有波動，避免過度消耗，補充身心最重要。", ["維持規律睡眠作息", "補充蔬果與水分", "每天輕度運動 30 分鐘", "評估是否需要健康檢查"]], ["旅行運勢本週有正向指引，適合確認交通票務與行程細節，出行預留緩衝時間。", ["確認近期旅遊票務", "準備備用交通路線", "查詢目的地入境規定", "設定旅遊預算上限"]], ["本週修行能量充沛，適合靜坐、書寫心願與深度沉澱，新月/滿月前後尤為強烈。", ["每天 10–15 分鐘靜坐", "書寫心願清單", "整理近期修行心得", "斷捨離一項舊習慣"]], ["服務與利他能量本週特別充沛，志工活動或社區參與都能帶來深刻滿足感。", ["確認培訓日期與準備事項", "完成一件利他的小行動", "關懷一位需要支持的人", "設定服務心願"]]];
+var TRENDS_EN=[["Key planetary energy this week boosts career momentum. Now is the time to prepare and take initiative.", ["Clarify your key strengths and elevator pitch", "Identify 3\u20135 target opportunities", "Reach out to key contacts", "Set career intentions by week's end"]], ["Mercury active \u2014 mental clarity peaks. Study efficiency is high; great for exams and deep thinking.", ["Study at least 1 hour daily", "Review and organize notes", "Set next-phase learning goals", "Use planetary energy for a fresh academic start"]], ["Financial energy stabilizes this week. Focus on budgeting and long-term planning; avoid impulse spending.", ["Audit this month's income and expenses", "Set a spending ceiling for major items", "Check upcoming bill deadlines", "Assess your cash-flow plan"]], ["Venus or Jupiter transiting \u2014 social doors open. Express yourself in relationships and build new connections.", ["Reach out to someone important", "Express your needs and feelings clearly", "Make a relationship wish this weekend", "Notice new people entering your life"]], ["Jupiter in Cancer deepens family bonds. Moon in the 4th house amplifies nurturing energy.", ["Schedule quality family time", "Check in on family members' wellbeing", "Tidy and refresh your living space", "Mind subtle communication dynamics at home"]], ["Watch your energy levels \u2014 fluctuations are likely. Prioritize rest, hydration, and regular routines.", ["Maintain consistent sleep hours", "Eat more fruits and vegetables", "30 min gentle exercise daily", "Consider scheduling a health checkup"]], ["Travel fortune is positive this week. Confirm tickets and itinerary details; allow buffer time.", ["Confirm upcoming travel bookings", "Prepare a backup route", "Check destination entry requirements", "Set a firm travel budget"]], ["Spiritual energy is strong. Meditation, journaling, and intention-setting resonate deeply now.", ["10\u201315 min daily sitting or recitation", "Write your intentions", "Journal recent insights", "Release one old habit"]], ["Altruistic energy peaks this week. Community service and volunteer work bring deep fulfillment.", ["Confirm training date and preparations", "Complete one act of kindness", "Reach out to someone who needs support", "Set a service intention"]]];
+</script>
+<script>
+window.onerror=function(m,s,l){var e=document.getElementById('errMsg');if(e)e.textContent='Error('+l+'): '+m;return true;};
+
+// ── Lang ──
+var LANG=localStorage.getItem('ol_lang')||(navigator.language.startsWith('zh')?'zh':'en');
+function setLang(l){
+  LANG=l;localStorage.setItem('ol_lang',l);
+  document.querySelectorAll('.lb').forEach(function(b){b.classList.toggle('active',b.dataset.l===l);});
+  if(USER){renderReport();}else{renderForm();}
 }
-(function scheduleRefresh(){var W=getWeekInfo();var endOfWeek=new Date(W.sun);endOfWeek.setHours(23,59,59,999);var ms=endOfWeek-Date.now();if(ms<0)ms=0;setTimeout(function(){if(document.getElementById('result').style.display==='block')generate();scheduleRefresh();},ms+1500);})();
-applyLang();
+
+// ── Astro helpers ──
+function getSunSign(mo,dy){
+  var B=[[3,21,4,19],[4,20,5,20],[5,21,6,20],[6,21,7,22],[7,23,8,22],[8,23,9,22],[9,23,10,22],[10,23,11,21],[11,22,12,21],[12,22,1,19],[1,20,2,18],[2,19,3,20]];
+  for(var i=0;i<12;i++){var b=B[i],sm=b[0],sd=b[1],em=b[2],ed=b[3];if(sm>em){if((mo===sm&&dy>=sd)||(mo===em&&dy<=ed))return i;}else{if((mo===sm&&dy>=sd)||(mo===em&&dy<=ed)||(mo>sm&&mo<em))return i;}}
+  return 0;
+}
+function getRising(hr,mi,sun){return(sun+Math.floor(((hr+mi/60-6+24)%24)/2))%12;}
+function getNum(s){var n=s.replace(/-/g,'').split('').reduce(function(a,b){return a+parseInt(b);},0);while(n>9&&n!==11&&n!==22)n=String(n).split('').reduce(function(a,b){return a+parseInt(b);},0);return n;}
+
+// ── Date helpers (local) ──
+function pad(n){return n<10?'0'+n:String(n);}
+function getMon(d){var dt=new Date(d),day=dt.getDay();dt.setDate(dt.getDate()+(day===0?-6:1-day));return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate());}
+function addDays(wk,n){var d=new Date(wk);d.setDate(d.getDate()+n);return d;}
+function getWN(wk){var d=new Date(wk),j=new Date(d.getFullYear(),0,1);return Math.ceil(((d-j)/86400000+j.getDay()+1)/7);}
+function fmtDate(d,zh){if(zh)return(d.getMonth()+1)+'/'+d.getDate();return(d.getMonth()+1)+'/'+d.getDate();}
+function fmtRange(wk){
+  var m=new Date(wk),su=addDays(wk,6);
+  if(LANG==='zh')return(m.getMonth()+1)+'/'+m.getDate()+'（一）— '+(su.getMonth()+1)+'/'+su.getDate()+'（日）';
+  return(m.getMonth()+1)+'/'+m.getDate()+' Mon — '+(su.getMonth()+1)+'/'+su.getDate()+' Sun';
+}
+function getDayNames(wk){
+  var zh=['（一）','（二）','（三）','（四）','（五）','（六）','（日）'];
+  var en=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var res=[];
+  for(var i=0;i<7;i++){var d=addDays(wk,i);var mo=d.getMonth()+1,dy=d.getDate();res.push(mo+'/'+dy+(LANG==='zh'?zh[i]:' '+en[i]));}
+  return res;
+}
+
+// ── Weekly content generator (dynamic per week) ──
+function weekHash(wk){
+  var n=parseInt(wk.replace(/-/g,''));
+  return(n*31+n%7*13)%1000;
+}
+function getWeeklyData(wk,sun){
+  var wn=getWN(wk), h=weekHash(wk);
+  var pat=WEEK_PATTERNS[wn%4];
+  // Scores
+  var sc=[];
+  for(var ai=0;ai<9;ai++){var base=BASE_SCORES[ai][sun],delta=(h+ai*7)%3-1;sc.push(Math.max(1,Math.min(5,base+pat[ai]+delta)));}
+  // Lucky (offset by week)
+  var off=(wn+Math.floor(sun/3))%12;
+  var colArr=LANG==='zh'?LUCKY_COL_ZH:LUCKY_COL_EN;
+  var dayArr=LANG==='zh'?LUCKY_DAY_ZH:LUCKY_DAY_EN;
+  var kwArr =LANG==='zh'?LUCKY_KW_ZH:LUCKY_KW_EN;
+  var col=colArr[(sun+off)%12], day=dayArr[(sun+off)%12], kw=kwArr[(sun+off)%12];
+  var num=NUMS_MAP[getNum]||[1,4]; // placeholder, computed separately
+  // Daily
+  var days=getDayNames(wk), dailyArr=[];
+  for(var di=0;di<7;di++){
+    var seed=(h+di*17+sun*3)%10;
+    var moodRow=(wn+di)%2, moodIdx=(h+di)%8;
+    var tagArr=LANG==='zh'?DAILY_TAGS_ZH[moodRow]:DAILY_TAGS_EN[moodRow];
+    var txtArr=LANG==='zh'?DAILY_TEXT_ZH:DAILY_TEXT_EN;
+    dailyArr.push({d:days[di],m:DAILY_MOODS[moodRow][moodIdx],t:txtArr[seed],tag:tagArr[moodIdx%tagArr.length],cls:DAILY_CLS[seed]});
+  }
+  // Moon phase label for week title
+  var moonIdx=Math.floor((wn*7/29.5)%8);
+  var moonLbl=LANG==='zh'?MOON_ZH[moonIdx]:MOON_EN[moonIdx];
+  return{sc:sc,col:col,day:day,kw:kw,daily:dailyArr,moon:moonLbl,pat:wn%4};
+}
+
+// ── Stars HTML ──
+function stars(n){var s='';for(var i=0;i<5;i++)s+='<span style="color:'+(i<n?'#c9a84c':'rgba(255,255,255,.15)')+'">★</span>';return s;}
+
+// ── State ──
+var USER=null, CWK=getMon(new Date());
+
+// ── Bilingual form strings ──
+var FL={
+  zh:{h2:'☽ 輸入出生資料',name:'姓名',date:'出生日期',time:'出生時間',city:'出生城市',gender:'性別',lat:'出生地緯度（選填，提升上升座精準度）',ph_name:'你的名字',ph_city:'例：台北',ph_lat:'例：25.04（台北）',gF:'女 Female',gM:'男 Male',gN:'不指定',btn:'✦ 產生我的個人化週報',req:'請填寫出生日期',sl:['✨ 本週幸運元素','📊 九大領域週運','📅 每日運勢'],ll:['幸運色','幸運數字','幸運日','關鍵詞'],edit:'✎ 編輯資料',save:'💾 儲存週報'},
+  en:{h2:'☽ Enter Birth Data',name:'Name',date:'Birth Date',time:'Birth Time',city:'Birth City',gender:'Gender',lat:'Latitude (optional, improves rising sign)',ph_name:'Your name',ph_city:'e.g. Taipei',ph_lat:'e.g. 25.04 (Taipei)',gF:'Female',gM:'Male',gN:'Other',btn:'✦ Generate My Weekly Report',req:'Please enter your birth date',sl:['✨ Lucky Elements','📊 9-Area Forecast','📅 Daily Outlook'],ll:['Lucky Color','Lucky No.','Lucky Day','Keyword'],edit:'✎ Edit',save:'💾 Save Report'}
+};
+
+function renderForm(){
+  var f=FL[LANG];
+  document.getElementById('form-h2').textContent=f.h2;
+  document.getElementById('lbl-name').textContent=f.name;
+  document.getElementById('lbl-date').textContent=f.date;
+  document.getElementById('lbl-time').textContent=f.time;
+  document.getElementById('lbl-city').textContent=f.city;
+  document.getElementById('lbl-gender').textContent=f.gender;
+  document.getElementById('lbl-lat').textContent=f.lat;
+  document.getElementById('f-name').placeholder=f.ph_name;
+  document.getElementById('f-city').placeholder=f.ph_city;
+  document.getElementById('f-lat').placeholder=f.ph_lat;
+  var fg=document.getElementById('f-gender');
+  if(fg){fg.options[0].text=f.gF;fg.options[1].text=f.gM;fg.options[2].text=f.gN;}
+  document.getElementById('btn-go').textContent=f.btn;
+}
+
+// ── Generate ──
+function generateReport(){
+  document.getElementById('errMsg').textContent='';
+  var dv=document.getElementById('f-date').value;
+  if(!dv){document.getElementById('errMsg').textContent=FL[LANG].req;return;}
+  var name=(document.getElementById('f-name').value.trim())||(LANG==='zh'?'旅行者':'Traveler');
+  var tv=document.getElementById('f-time').value||'08:00';
+  var city=(document.getElementById('f-city').value.trim())||(LANG==='zh'?'未指定':'Unknown');
+  var parts=dv.split('-'),y=parseInt(parts[0]),mo=parseInt(parts[1]),dy=parseInt(parts[2]);
+  var tp=tv.split(':'),hr=parseInt(tp[0]),mi=parseInt(tp[1]);
+  var sun=getSunSign(mo,dy),ris=getRising(hr,mi,sun),num=getNum(dv);
+  USER={name:name,dv:dv,tv:tv,city:city,sun:sun,ris:ris,num:num,y:y};
+  localStorage.setItem('ol_u',JSON.stringify(USER));
+  document.getElementById('formPage').style.display='none';
+  document.getElementById('reportPage').style.display='block';
+  renderReport();
+}
+
+function goEdit(){
+  document.getElementById('reportPage').style.display='none';
+  document.getElementById('formPage').style.display='block';
+  if(USER){document.getElementById('f-name').value=USER.name||'';document.getElementById('f-date').value=USER.dv||'';document.getElementById('f-time').value=USER.tv||'';document.getElementById('f-city').value=USER.city||'';}
+  renderForm();
+}
+
+// ── Save report as text ──
+function saveReport(){
+  var f=FL[LANG], SIGNS=LANG==='zh'?SIGNS_ZH:SIGNS_EN;
+  var wn=getWN(CWK), wd=getWeeklyData(CWK,USER.sun);
+  var nums=NUMS_MAP[USER.num]||[USER.num,1];
+  var lines=[
+    (LANG==='zh'?'【個人化占星週報】':'[Personal Astrology Report]'),
+    USER.name+' | W'+wn+' '+fmtRange(CWK),
+    (LANG==='zh'?'太陽：':'Sun: ')+SIGNS[USER.sun]+(LANG==='zh'?'座  上升：':'  Rising: ')+SIGNS[USER.ris]+(LANG==='zh'?'座':''),
+    '',
+    f.ll[0]+': '+wd.col+'  '+f.ll[1]+': '+nums.join('·')+'  '+f.ll[2]+': '+wd.day+'  '+f.ll[3]+': '+wd.kw,
+    ''
+  ];
+  var AREAS=LANG==='zh'?AREAS_ZH:AREAS_EN;
+  for(var ai=0;ai<9;ai++){var sc=wd.sc[ai];var st='';for(var j=0;j<sc;j++)st+='★';for(var j=sc;j<5;j++)st+='☆';lines.push(AREAS_IC[ai]+' '+AREAS[ai]+' '+st);}
+  lines.push('');
+  var TRENDS=LANG==='zh'?TRENDS_ZH:TRENDS_EN;
+  for(var ai=0;ai<9;ai++){lines.push('['+AREAS[ai]+'] '+TRENDS[ai][0]);TRENDS[ai][1].forEach(function(a){lines.push('  ▸ '+a);});lines.push('');}
+  for(var di=0;di<wd.daily.length;di++){var d=wd.daily[di];lines.push(d.d+' '+d.m+' '+d.t+' ['+d.tag+']');}
+  var blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='oracle_W'+wn+'_'+USER.name+'.txt';a.click();
+}
+
+// ── Render ──
+function renderReport(){
+  if(!USER)return;
+  var f=FL[LANG], sun=USER.sun, ris=USER.ris;
+  var SIGNS=LANG==='zh'?SIGNS_ZH:SIGNS_EN;
+  var AREAS=LANG==='zh'?AREAS_ZH:AREAS_EN;
+  var wn=getWN(CWK);
+  var wd=getWeeklyData(CWK,sun);
+  var nums=NUMS_MAP[USER.num]||[USER.num,1];
+
+  // Update lang buttons
+  document.querySelectorAll('.lb').forEach(function(b){b.classList.toggle('active',b.dataset.l===LANG);});
+
+  // Hero
+  document.getElementById('rAva').textContent=SIGN_EM[sun];
+  document.getElementById('rName').textContent=USER.name+(LANG==='zh'?' 的個人化週運':'— Personal Weekly');
+  document.getElementById('rTags').innerHTML=
+    '<span class="tag">☀️ '+(LANG==='zh'?'太陽 ':'')+SIGNS[sun]+(LANG==='zh'?'座':'')+'</span>'+
+    '<span class="tag">↑ '+(LANG==='zh'?'上升 ':'')+SIGNS[ris]+(LANG==='zh'?'座':'')+'</span>'+
+    '<span class="tag">🎂 '+USER.dv.replace(/-/g,'/')+'</span>'+
+    '<span class="tag">📍 '+USER.city+'</span>';
+  document.getElementById('edit-btn').textContent=f.edit;
+  document.getElementById('save-btn').textContent=f.save;
+
+  // Week nav — FIX #2: W number + date range in one line
+  document.getElementById('wLbl').textContent='W'+wn+' · '+fmtRange(CWK);
+  document.getElementById('wYear').textContent=new Date(CWK).getFullYear()+(LANG==='zh'?'年':'');
+
+  // Lucky — FIX #3: uses wd which is week-dependent
+  document.getElementById('luckyGrid').innerHTML=
+    '<div class="lt"><div class="llt">'+f.ll[0]+'</div><div class="llv">'+wd.col+'</div></div>'+
+    '<div class="lt"><div class="llt">'+f.ll[1]+'</div><div class="llv">'+nums.join('·')+'</div></div>'+
+    '<div class="lt"><div class="llt">'+f.ll[2]+'</div><div class="llv">'+wd.day+'</div></div>'+
+    '<div class="lt"><div class="llt">'+f.ll[3]+'</div><div class="llv">'+wd.kw+'</div></div>';
+
+  // Areas — FIX #3: uses wd.sc which is week-dependent
+  var rb=[ris%9,(ris+4)%9],ah='';
+  for(var ai=0;ai<9;ai++){
+    var sc=wd.sc[ai];if(rb.indexOf(ai)>=0)sc=Math.min(5,sc+1);
+    ah+='<div class="atile" onclick="openDetail('+ai+')"><div style="font-size:1.4rem;margin-bottom:5px">'+AREAS_IC[ai]+'</div><div style="font-size:.68rem;color:var(--dim);margin-bottom:5px">'+AREAS[ai]+'</div><div>'+stars(sc)+'</div></div>';
+  }
+  document.getElementById('areasGrid').innerHTML=ah;
+
+  // Daily — FIX #3: uses wd.daily which is week-dependent
+  var dh='';
+  for(var di=0;di<wd.daily.length;di++){
+    var d=wd.daily[di];
+    dh+='<div class="drow"><div class="dr-d">'+d.d+'</div><div class="dr-m">'+d.m+'</div><div class="dr-t">'+d.t+'</div><span class="dtag '+d.cls+'">'+d.tag+'</span></div>';
+  }
+  document.getElementById('dailyList').innerHTML=dh;
+
+  // Section labels
+  document.getElementById('sl1').textContent=f.sl[0];
+  document.getElementById('sl2').textContent=f.sl[1];
+  document.getElementById('sl3').textContent=f.sl[2];
+}
+
+// ── Detail modal ──
+function openDetail(ai){
+  if(!USER)return;
+  var f=FL[LANG], AREAS=LANG==='zh'?AREAS_ZH:AREAS_EN, TRENDS=LANG==='zh'?TRENDS_ZH:TRENDS_EN;
+  var wd=getWeeklyData(CWK,USER.sun);
+  var sc=wd.sc[ai]; var rb=[USER.ris%9,(USER.ris+4)%9]; if(rb.indexOf(ai)>=0)sc=Math.min(5,sc+1);
+  document.getElementById('dIco').textContent=AREAS_IC[ai];
+  document.getElementById('dTitle').textContent=AREAS[ai];
+  document.getElementById('dStars').innerHTML=stars(sc);
+  document.getElementById('dTrend').textContent='☽ '+TRENDS[ai][0];
+  var ah='';TRENDS[ai][1].forEach(function(a){ah+='<li>'+a+'</li>';});
+  document.getElementById('dActs').innerHTML=ah;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+
+// ── Week nav ──
+function changeWeek(d){var dt=new Date(CWK);dt.setDate(dt.getDate()+d*7);CWK=getMon(dt);renderReport();}
+
+// ── Starfield ──
+function drawBg(){
+  var c=document.getElementById('bg'); if(!c)return;
+  var ctx=c.getContext('2d'); c.width=window.innerWidth; c.height=window.innerHeight;
+  var g=ctx.createRadialGradient(c.width/2,0,0,c.width/2,c.height,c.height);
+  g.addColorStop(0,'#0e0e22');g.addColorStop(1,'#06060e');
+  ctx.fillStyle=g;ctx.fillRect(0,0,c.width,c.height);
+  for(var i=0;i<200;i++){var x=Math.random()*c.width,y=Math.random()*c.height;ctx.beginPath();ctx.arc(x,y,Math.random()*1.2+.1,0,6.28);ctx.fillStyle='rgba(255,255,255,'+(Math.random()*.7+.1)+')';ctx.fill();}
+  for(var i=0;i<10;i++){ctx.beginPath();ctx.arc(Math.random()*c.width,Math.random()*c.height,1.5,0,6.28);ctx.fillStyle='rgba(201,168,76,.55)';ctx.fill();}
+}
+window.addEventListener('resize',drawBg);
+
+// ── Init ──
+window.onload=function(){
+  drawBg();
+  document.querySelectorAll('.lb').forEach(function(b){b.classList.toggle('active',b.dataset.l===LANG);});
+  var saved=localStorage.getItem('ol_u');
+  if(saved){
+    try{USER=JSON.parse(saved);document.getElementById('formPage').style.display='none';document.getElementById('reportPage').style.display='block';renderReport();}
+    catch(e){localStorage.removeItem('ol_u');renderForm();}
+  } else { renderForm(); }
+  document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+};
 </script>
 </body>
 </html>
