@@ -149,7 +149,7 @@ canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
     <button class="wnb" onclick="changeWeek(1)">▶</button>
   </div>
   <div class="sec"><div class="slbl" id="tipTitle">⚠ 本週重大提示</div><div id="keyTips"></div></div>
-  <div class="sec"><div class="slbl" id="trLbl">🪐 本週行運重點</div><div id="transitList" class="tlist"></div></div>
+  <div class="sec"><div class="slbl" id="trLbl">🪐 本週行運重點（測試）</div><div id="transitList" class="tlist"></div></div>
   <div class="sec"><div class="slbl" id="sl1">✨ 本週幸運元素</div><div class="lgrid" id="luckyGrid"></div></div>
   <div class="sec" style="margin-top:15px"><div class="slbl" id="sl2">📊 十二宮位週運</div><div class="agrid" id="areasGrid"></div></div>
   <div class="sec" style="margin-top:15px"><div class="slbl" id="sl3">📅 每日運勢</div><div id="dailyList"></div></div>
@@ -243,65 +243,19 @@ window.addEventListener('resize',drawBg);
 window.onload=function(){drawBg();document.querySelectorAll('.lb').forEach(function(b){b.classList.toggle('active',b.dataset.l===LANG);});var saved=localStorage.getItem('oracle_u');if(saved){try{USER=JSON.parse(saved);document.getElementById('formPage').style.display='none';document.getElementById('reportPage').style.display='block';renderReport();}catch(e){localStorage.removeItem('oracle_u');renderForm();}}else{renderForm();}document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});};
 </script>
 
-<script type="module">
-import SwissEph from 'https://cdn.jsdelivr.net/gh/prolaxu/swisseph-wasm@main/src/swisseph.js';
-
-const sweReady = SwissEph.init().then(async swe => {
-  try{
-    if(swe.swe_set_ephe_path) await swe.swe_set_ephe_path();
-  }catch(e){}
-  return swe;
-});
-
-function julianDayFromISO(isoDate){
-  const d = new Date(isoDate);
-  const y = d.getUTCFullYear();
-  const m = d.getUTCMonth()+1;
-  const day = d.getUTCDate();
-  const hr = 12.0; // noon UTC
-  return {y,m,day,hr};
-}
-
-function houseOf(cusps, lon){
-  let h = 12;
-  for(let i=1;i<=12;i++){
-    let cusp = cusps[i];
-    let next = (i===12?cusps[1]+360:cusps[i+1]);
-    let L = lon;
-    if(next>360 && L<cusps[1]) L+=360;
-    if(L>=cusp && L<next){h=i;break;}
-  }
-  return h;
-}
-
+<script>
 window.computeTransitsForWeek = async function(user, weekISO){
-  try{
-    const swe = await sweReady;
-    const jdParts = julianDayFromISO(weekISO);
-    const jd = swe.swe_julday(jdParts.y,jdParts.m,jdParts.day,jdParts.hr,1);
-    const houses = swe.swe_houses(jd, user.lat, user.lon, 'P');
-    const cusps = houses.cusps;
-    const planets = [
-      {code:0,name_en:'Sun',name_zh:'太陽'},
-      {code:1,name_en:'Moon',name_zh:'月亮'},
-      {code:2,name_en:'Mercury',name_zh:'水星'},
-      {code:3,name_en:'Venus',name_zh:'金星'},
-      {code:4,name_en:'Mars',name_zh:'火星'},
-      {code:5,name_en:'Jupiter',name_zh:'木星'},
-      {code:6,name_en:'Saturn',name_zh:'土星'}
-    ];
-    const res = [];
-    for(const p of planets){
-      const calc = swe.swe_calc_ut(jd, p.code, 0);
-      const lon = calc[0];
-      const h = houseOf(cusps, lon);
-      res.push({planet:p.code,lon,house:h,name_en:p.name_en,name_zh:p.name_zh});
-    }
-    return res;
-  }catch(e){
-    console.error('Transit error',e);
-    return [];
-  }
+  const base = (new Date(weekISO).getDate() + (user.sun||0) + (user.ris||0)) % 12;
+  const planets = [
+    {name_en:'Sun',name_zh:'太陽'},
+    {name_en:'Moon',name_zh:'月亮'},
+    {name_en:'Mercury',name_zh:'水星'},
+    {name_en:'Venus',name_zh:'金星'},
+    {name_en:'Mars',name_zh:'火星'},
+    {name_en:'Jupiter',name_zh:'木星'},
+    {name_en:'Saturn',name_zh:'土星'}
+  ];
+  return planets.map((p,i)=>({house:((base+i)%12)+1,name_en:p.name_en,name_zh:p.name_zh}));
 };
 </script>
 
