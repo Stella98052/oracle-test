@@ -56,6 +56,8 @@ canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
 .sec{padding:13px 15px 0}
 .slbl{font-size:.62rem;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:7px}
 .slbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.tip-item{font-size:.75rem;color:var(--text);line-height:1.5;margin-bottom:4px}
+
 .lgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .lt{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center}
 .llt{font-size:.59rem;color:var(--dim);margin-bottom:4px}
@@ -149,6 +151,8 @@ canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
     <div class="wlbl" id="wLbl"></div>
     <button class="wnb" onclick="changeWeek(1)">▶</button>
   </div>
+  
+  <div class="sec"><div class="slbl" id="tipTitle">⚠ 本週重大提示</div><div id="keyTips"></div></div>
   <div class="sec"><div class="slbl" id="sl1">✨ 本週幸運元素</div><div class="lgrid" id="luckyGrid"></div></div>
   <div class="sec" style="margin-top:15px"><div class="slbl" id="sl2">📊 九大領域週運</div><div class="agrid" id="areasGrid"></div></div>
   <div class="sec" style="margin-top:15px"><div class="slbl" id="sl3">📅 每日運勢</div><div id="dailyList"></div></div>
@@ -172,8 +176,8 @@ canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
 var SIGNS_ZH=["牡羊", "金牛", "雙子", "巨蟹", "獅子", "處女", "天秤", "天蠍", "射手", "魔羯", "水瓶", "雙魚"];
 var SIGNS_EN=["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
 var SIGN_EM=["\u2648", "\u2649", "\u264a", "\u264b", "\u264c", "\u264d", "\u264e", "\u264f", "\u2650", "\u2651", "\u2652", "\u2653"];
-var AREAS_ZH=["事業求職", "學習考試", "財務理財", "感情人際", "家庭母親", "健康身體", "旅行交通", "心靈修行", "志工服務"];
-var AREAS_EN=["Career", "Study", "Finance", "Relationships", "Family", "Health", "Travel", "Spiritual", "Service"];
+var AREAS_ZH=["事業求職", "學習考試", "財務理財", "感情人際", "家庭與家人", "健康身體", "旅行交通", "心靈修行", "父母關係"];
+var AREAS_EN=["Career", "Study", "Finance", "Relationships", "Family & Home", "Health", "Travel", "Spiritual", "Parents"];
 var AREAS_IC=["\ud83d\udcbc", "\ud83d\udcda", "\ud83d\udcb0", "\u2764", "\ud83c\udfe0", "\ud83d\udcaa", "\u2708", "\ud83e\uddd8", "\ud83c\udf31"];
 var BASE_SCORES=[[5, 3, 4, 4, 3, 5, 4, 3, 4, 5, 4, 3], [4, 4, 5, 4, 3, 4, 4, 4, 3, 4, 5, 4], [4, 5, 3, 4, 4, 4, 5, 3, 3, 5, 3, 4], [4, 4, 5, 5, 4, 3, 5, 4, 4, 3, 4, 5], [4, 4, 3, 5, 5, 4, 3, 5, 3, 4, 3, 4], [3, 4, 4, 4, 5, 3, 4, 3, 4, 3, 5, 4], [5, 4, 4, 3, 4, 3, 4, 4, 5, 3, 3, 4], [5, 3, 4, 4, 3, 5, 3, 5, 4, 4, 4, 5], [4, 4, 4, 5, 4, 4, 4, 4, 5, 4, 4, 5]];
 var WEEK_PATTERNS=[[1, 1, 0, 0, 1, 0, 1, 1, 0], [0, 0, 1, 1, 0, 1, 0, 1, 1], [1, 0, 0, 0, 0, 1, 1, 0, 1], [0, 1, 1, 0, 1, 0, 0, 0, 0]];
@@ -359,6 +363,30 @@ function goEdit(){
 function saveReport(){
   var f=FL[LANG],SIGNS=LANG==='zh'?SIGNS_ZH:SIGNS_EN,AREAS=LANG==='zh'?AREAS_ZH:AREAS_EN;
   var wn=getWN(CWK),wd=getWeeklyData(CWK,USER.sun);
+  // Key weekly tips
+  var tips=[], i;
+  for(i=0;i<wd.daily.length;i++){
+    var d=wd.daily[i];
+    if(d.cls==='low' && tips.length<2){
+      tips.push((LANG==='zh'?'• ':'• ')+d.d+(LANG==='zh'?'：':' – ')+d.t);
+    }
+  }
+  var maxIdx=0,maxVal=-1;
+  for(i=0;i<wd.sc.length;i++){
+    if(wd.sc[i]>maxVal){maxVal=wd.sc[i];maxIdx=i;}
+  }
+  tips.push(LANG==='zh'
+    ? '• '+AREAS[maxIdx]+'：本週能量特別強，適合優先安排相關重要事項。'
+    : '• '+AREAS[maxIdx]+': highlighted; prioritize related actions this week.'
+  );
+  if(tips.length>3) tips=tips.slice(0,3);
+  var th=LANG==='zh'?'⚠ 本週重大提示':'⚠ Key Alerts This Week';
+  document.getElementById('tipTitle').textContent=th;
+  var kh='';
+  for(i=0;i<tips.length;i++){
+    kh+='<div class\"tip-item\">'+tips[i]+'</div>';
+  }
+  document.getElementById('keyTips').innerHTML=kh;
   var nums=NUMS_MAP[USER.num]||[USER.num,1];
   var lines=['【個人化占星週報 · Oracle 2026】',USER.name+' | W'+wn+' '+fmtRange(CWK),''];
   lines.push((LANG==='zh'?'☀️ 太陽：':'☀️ Sun: ')+SIGNS[USER.sun]+(LANG==='zh'?'座':''));
@@ -380,6 +408,30 @@ function renderReport(){
   if(!USER)return;
   var f=FL[LANG],SIGNS=LANG==='zh'?SIGNS_ZH:SIGNS_EN,AREAS=LANG==='zh'?AREAS_ZH:AREAS_EN;
   var wn=getWN(CWK),wd=getWeeklyData(CWK,USER.sun);
+  // Key weekly tips
+  var tips=[], i;
+  for(i=0;i<wd.daily.length;i++){
+    var d=wd.daily[i];
+    if(d.cls==='low' && tips.length<2){
+      tips.push((LANG==='zh'?'• ':'• ')+d.d+(LANG==='zh'?'：':' – ')+d.t);
+    }
+  }
+  var maxIdx=0,maxVal=-1;
+  for(i=0;i<wd.sc.length;i++){
+    if(wd.sc[i]>maxVal){maxVal=wd.sc[i];maxIdx=i;}
+  }
+  tips.push(LANG==='zh'
+    ? '• '+AREAS[maxIdx]+'：本週能量特別強，適合優先安排相關重要事項。'
+    : '• '+AREAS[maxIdx]+': highlighted; prioritize related actions this week.'
+  );
+  if(tips.length>3) tips=tips.slice(0,3);
+  var th=LANG==='zh'?'⚠ 本週重大提示':'⚠ Key Alerts This Week';
+  document.getElementById('tipTitle').textContent=th;
+  var kh='';
+  for(i=0;i<tips.length;i++){
+    kh+='<div class\"tip-item\">'+tips[i]+'</div>';
+  }
+  document.getElementById('keyTips').innerHTML=kh;
   var nums=NUMS_MAP[USER.num]||[USER.num,1];
   document.querySelectorAll('.lb').forEach(function(b){b.classList.toggle('active',b.dataset.l===LANG);});
   document.getElementById('rAva').textContent=SIGN_EM[USER.sun];
