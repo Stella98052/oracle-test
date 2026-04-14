@@ -55,6 +55,10 @@ canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
 .slbl{font-size:.6rem;letter-spacing:.15em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;word-break:break-all}
 .slbl::after{content:'';flex:1;height:1px;background:var(--border)}
 .tip-item{font-size:.74rem;color:var(--gold2);font-weight:700;line-height:1.5;margin-bottom:4px;word-break:break-all;white-space:normal}
+.tlist{margin-top:6px;font-size:.78rem;color:var(--vl);line-height:1.6}
+.titem{margin-bottom:4px;word-break:break-all}
+.tplanet{color:var(--gold2);font-weight:600}
+.thouse{color:var(--violet);font-weight:600}
 .lgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
 .lt{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center;min-width:0;overflow:hidden}
 .llt{font-size:.57rem;color:var(--dim);margin-bottom:3px}
@@ -117,7 +121,7 @@ canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
       <select id="f-gender"><option value="F">女</option><option value="M">男</option><option value="N">不指定</option></select>
     </div>
   </div>
-  <div class="src-note" id="src-note">上升星座採用 Placidus 宮位制計算（同 astro.com）</div>
+  <div class="src-note" id="src-note">免責聲明： 本站僅供占星學術研究參考，採用 Placidus 宮位制計算（同 astro.com），不具任何決策建議，使用者需自負風險。</div>
   <button class="btn-go" id="btn-go" onclick="generateReport()">✦ 產生我的個人化週報</button>
   <div class="err" id="errMsg"></div>
 </div>
@@ -137,7 +141,7 @@ canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
     <div class="ava" id="rAva">🌙</div>
     <div class="hero-name" id="rName"></div>
     <div class="tags" id="rTags"></div>
-    <div class="rsrc" id="rSrc">上升座採用 Placidus 宮位制 · 參考 astro.com</div>
+    <div class="rsrc" id="rSrc">免責聲明： 本站僅供占星學術研究參考，採用 Placidus 宮位制計算（同 astro.com），不具任何決策建議，使用者需自負風險。</div>
   </div>
   <div class="wnav">
     <button class="wnb" onclick="changeWeek(-1)">◀</button>
@@ -145,6 +149,7 @@ canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
     <button class="wnb" onclick="changeWeek(1)">▶</button>
   </div>
   <div class="sec"><div class="slbl" id="tipTitle">⚠ 本週重大提示</div><div id="keyTips"></div></div>
+  <div class="sec"><div class="slbl" id="trLbl">🪐 本週行運重點</div><div id="transitList" class="tlist"></div></div>
   <div class="sec"><div class="slbl" id="sl1">✨ 本週幸運元素</div><div class="lgrid" id="luckyGrid"></div></div>
   <div class="sec" style="margin-top:15px"><div class="slbl" id="sl2">📊 十二宮位週運</div><div class="agrid" id="areasGrid"></div></div>
   <div class="sec" style="margin-top:15px"><div class="slbl" id="sl3">📅 每日運勢</div><div id="dailyList"></div></div>
@@ -152,7 +157,7 @@ canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
     <div class="slbl">🜁 十二宮位說明</div>
     <div id="houseNotes" style="font-size:.78rem;color:var(--dim);line-height:1.7;"></div>
   </div>
-  <div style="text-align:center;padding:14px 0 4px;font-size:.62rem;color:var(--dim)">上升座計算方式：Placidus 宮位制 · 參考 astro.com</div>
+  <div style="text-align:center;padding:14px 0 4px;font-size:.62rem;color:var(--dim)">免責聲明： 本站僅供占星學術研究參考，採用 Placidus 宮位制計算（同 astro.com），不具任何決策建議，使用者需自負風險。</div>
 </div>
 
 </div>
@@ -212,10 +217,11 @@ function moonSign(yr,mo,dy){var a=Math.floor((14-mo)/12),y=yr+4800-a,m=mo+12*a-3
 function weekHash(wk){var n=parseInt(wk.replace(/-/g,''));return((n*31+n%7*13)%1000+1000)%1000;}
 function getWeeklyData(wk,sun){var wn=getWN(wk),h=weekHash(wk),pat=WEEK_PATTERNS[wn%4];var sc=[],ai;for(ai=0;ai<12;ai++){var base=BASE_SCORES[ai][sun],delta=(h+ai*7)%3-1;sc.push(Math.max(1,Math.min(5,base+pat[ai]+delta)));}var off=(wn+Math.floor(sun/3))%12;var colZH=LUCKY_COL_ZH[(sun+off)%12],colEN=LUCKY_COL_EN[(sun+off)%12];var colCSS=LUCKY_COL_CSS[(sun+off)%12];var dayArr=LANG==='zh'?LUCKY_DAY_ZH:LUCKY_DAY_EN;var kwArr=LANG==='zh'?LUCKY_KW_ZH:LUCKY_KW_EN;var col=LANG==='zh'?colZH:colEN, day=dayArr[(sun+off)%12], kw=kwArr[(sun+off)%12];var daily=[],dayNamesZH=['（一）','（二）','（三）','（四）','（五）','（六）','（日）'],dayNamesEN=[' Mon',' Tue',' Wed',' Thu',' Fri',' Sat',' Sun'],sign_em=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];for(var di=0;di<7;di++){var dt=addDays(wk,di);var yr=dt.getFullYear(),mo=dt.getMonth()+1,dy=dt.getDate();var ms=moonSign(yr,mo,dy);var dName=(mo)+'/'+dy+(LANG==='zh'?dayNamesZH[di]:dayNamesEN[di]);var seed=(h+di*17+sun*3)%10;var moodRow=(wn+di)%2,moodIdx=(h+di)%8;var tagArr=LANG==='zh'?DAILY_TAGS_ZH[moodRow]:DAILY_TAGS_EN[moodRow];daily.push({d:dName,moon:sign_em[ms.sign]+' '+(LANG==='zh'?MOON_ZH[ms.sign]:MOON_EN[ms.sign]),t:(LANG==='zh'?DAILY_TEXT_ZH[seed]:DAILY_TEXT_EN[seed]),tag:tagArr[moodIdx%tagArr.length],cls:DAILY_CLS[seed]});}return{sc:sc,col:col,colCSS:colCSS,day:day,kw:kw,daily:daily};}
 function stars(n){var s='';for(var i=0;i<5;i++)s+='<span style="color:'+(i<n?'#c9a84c':'rgba(255,255,255,.15)')+'">★</span>';return s;}
+function formatTransitText(tr){if(!tr||!tr.length)return '';var out='';for(var i=0;i<tr.length;i++){var t=tr[i];if(!t||!t.house)continue;var hidx=t.house-1;if(hidx<0||hidx>=12)continue;var area=(LANG==='zh'?AREAS_ZH[hidx]:AREAS_EN[hidx]);var pname=LANG==='zh'?t.name_zh:t.name_en;var line='';if(LANG==='zh'){line='<span class="tplanet">'+pname+'</span> 行運至 <span class="thouse">'+area+'</span>，本週此領域的主題會更被放大。';}else{line='<span class="tplanet">'+pname+'</span> transits your <span class="thouse">'+area+'</span>, bringing extra focus to this area.';}out+='<div class="titem">'+line+'</div>';}return out;}
 var USER=null,CWK=getMon(new Date());
 var FL={
- zh:{h2:'☽ 輸入出生資料',name:'姓名',date:'出生日期',time:'出生時間',city:'出生城市',lon:'出生地經度',lat:'出生地緯度',tz:'時區（UTC+）',ph_name:'你的名字',ph_city:'例：台北',ph_lon:'例：121.52（台北）',ph_lat:'例：25.04（台北）',ph_tz:'例：8（台灣）',gF:'女',gM:'男',gN:'不指定',btn:'✦ 產生我的個人化週報',req:'請填寫出生日期',sl:['✨ 本週幸運元素','📊 十二宮位週運','📅 每日運勢'],ll:['幸運色','幸運數字','幸運日','關鍵詞'],edit:'✎ 編輯資料',save:'💾 儲存週報',src:'上升星座採用 Placidus 宮位制計算（同 astro.com）'},
- en:{h2:'☽ Enter Birth Data',name:'Name',date:'Birth Date',time:'Birth Time',city:'Birth City',lon:'Longitude',lat:'Latitude',tz:'Time Zone (UTC+)',ph_name:'Your name',ph_city:'e.g. Taipei',ph_lon:'e.g. 121.52 (Taipei)',ph_lat:'e.g. 25.04 (Taipei)',ph_tz:'e.g. 8 (Taiwan)',gF:'Female',gM:'Male',gN:'Other',btn:'✦ Generate My Weekly Report',req:'Please enter your birth date',sl:['✨ Lucky Elements','📊 12-House Forecast','📅 Daily Outlook'],ll:['Lucky Color','Lucky No.','Lucky Day','Keyword'],edit:'✎ Edit',save:'💾 Save Report',src:'Rising sign uses Placidus houses (same as astro.com)'}
+ zh:{h2:'☽ 輸入出生資料',name:'姓名',date:'出生日期',time:'出生時間',city:'出生城市',lon:'出生地經度',lat:'出生地緯度',tz:'時區（UTC+）',ph_name:'你的名字',ph_city:'例：台北',ph_lon:'例：121.52（台北）',ph_lat:'例：25.04（台北）',ph_tz:'例：8（台灣）',gF:'女',gM:'男',gN:'不指定',btn:'✦ 產生我的個人化週報',req:'請填寫出生日期',sl:['✨ 本週幸運元素','📊 十二宮位週運','📅 每日運勢'],ll:['幸運色','幸運數字','幸運日','關鍵詞'],edit:'✎ 編輯資料',save:'💾 儲存週報',src:'免責聲明： 本站僅供占星學術研究參考，採用 Placidus 宮位制計算（同 astro.com），不具任何決策建議，使用者需自負風險。'},
+ en:{h2:'☽ Enter Birth Data',name:'Name',date:'Birth Date',time:'Birth Time',city:'Birth City',lon:'Longitude',lat:'Latitude',tz:'Time Zone (UTC+)',ph_name:'Your name',ph_city:'e.g. Taipei',ph_lon:'e.g. 121.52 (Taipei)',ph_lat:'e.g. 25.04 (Taipei)',ph_tz:'e.g. 8 (Taiwan)',gF:'Female',gM:'Male',gN:'Other',btn:'✦ Generate My Weekly Report',req:'Please enter your birth date',sl:['✨ Lucky Elements','📊 12-House Forecast','📅 Daily Outlook'],ll:['Lucky Color','Lucky No.','Lucky Day','Keyword'],edit:'✎ Edit',save:'💾 Save Report',src:'Disclaimer: For astrological study only, uses Placidus houses (astro.com-compatible); not financial or life advice.'}
 };
 function renderForm(){var f=FL[LANG];document.getElementById('form-h2').textContent=f.h2;document.getElementById('lbl-name').textContent=f.name;document.getElementById('lbl-date').textContent=f.date;document.getElementById('lbl-time').textContent=f.time;document.getElementById('lbl-city').textContent=f.city;document.getElementById('lbl-lon').textContent=f.lon;document.getElementById('lbl-lat').textContent=f.lat;document.getElementById('lbl-tz').textContent=f.tz;document.getElementById('f-name').placeholder=f.ph_name;document.getElementById('f-city').placeholder=f.ph_city;document.getElementById('f-lon').placeholder=f.ph_lon;document.getElementById('f-lat').placeholder=f.ph_lat;document.getElementById('f-tz').placeholder=f.ph_tz;var fg=document.getElementById('f-gender');if(fg){fg.options[0].text=f.gF;fg.options[1].text=f.gM;fg.options[2].text=f.gN;}document.getElementById('btn-go').textContent=f.btn;document.getElementById('src-note').textContent=f.src;}
 function generateReport(){document.getElementById('errMsg').textContent='';var dv=document.getElementById('f-date').value;if(!dv){document.getElementById('errMsg').textContent=FL[LANG].req;return;}var name=(document.getElementById('f-name').value.trim())||(LANG==='zh'?'旅行者':'Traveler');var tv=document.getElementById('f-time').value||'08:00';var city=(document.getElementById('f-city').value.trim())||(LANG==='zh'?'未指定':'Unknown');var latV=parseFloat(document.getElementById('f-lat').value)||25.04;var lonV=parseFloat(document.getElementById('f-lon').value)||121.52;var tzV=parseFloat(document.getElementById('f-tz').value)||8;var parts=dv.split('-'),y=parseInt(parts[0]),mo=parseInt(parts[1]),dy=parseInt(parts[2]);var tp=tv.split(':'),hr=parseInt(tp[0]),mi=parseInt(tp[1]);var sun=getSunSign(mo,dy);var asc=calcAscendant(y,mo,dy,hr,mi,latV,lonV,tzV);var num=getNum(dv);USER={name:name,dv:dv,tv:tv,city:city,lat:latV,lon:lonV,tz:tzV,sun:sun,ris:asc.sign,risDeg:asc.deg,num:num,y:y};localStorage.setItem('oracle_u',JSON.stringify(USER));document.getElementById('formPage').style.display='none';document.getElementById('reportPage').style.display='block';renderReport();}
@@ -224,7 +230,7 @@ function saveReport(){if(!USER)return;var f=FL[LANG],SIGNS=LANG==='zh'?SIGNS_ZH:
 function fmtRange(wk){var m=new Date(wk),su=addDays(wk,6);if(LANG==='zh')return(m.getMonth()+1)+'/'+m.getDate()+'（一）— '+(su.getMonth()+1)+'/'+su.getDate()+'（日）';return(m.getMonth()+1)+'/'+m.getDate()+' Mon — '+(su.getMonth()+1)+'/'+su.getDate()+' Sun';}
 function renderReport(){if(!USER)return;var f=FL[LANG],SIGNS=LANG==='zh'?SIGNS_ZH:SIGNS_EN,AREAS=LANG==='zh'?AREAS_ZH:AREAS_EN;var wn=getWN(CWK),wd=getWeeklyData(CWK,USER.sun);var nums=NUMS_MAP[String(USER.num)]||[USER.num,1];document.querySelectorAll('.lb').forEach(function(b){b.classList.toggle('active',b.dataset.l===LANG);});
   // key weekly tips
-  var tips=[],i;for(i=0;i<wd.daily.length;i++){var d=wd.daily[i];if(d.cls==='low' && tips.length<2){tips.push((LANG==='zh'?'• ':'• ')+d.d+(LANG==='zh'?'：':' – ')+d.t);} }var maxIdx=0,maxVal=-1;for(i=0;i<wd.sc.length;i++){if(wd.sc[i]>maxVal){maxVal=wd.sc[i];maxIdx=i;}}tips.push(LANG==='zh'?'• '+AREAS[maxIdx]+'：本週能量特別強，適合優先安排相關重要事項。':'• '+AREAS[maxIdx]+': highlighted; prioritize related actions this week.');if(tips.length>3)tips=tips.slice(0,3);document.getElementById('tipTitle').textContent=LANG==='zh'?'⚠ 本週重大提示':'⚠ Key Alerts This Week';var kh='';for(i=0;i<tips.length;i++)kh+='<div class="tip-item">'+tips[i]+'</div>';document.getElementById('keyTips').innerHTML=kh;
+  var tips=[],i;for(i=0;i<wd.daily.length;i++){var d=wd.daily[i];if(d.cls==='low' && tips.length<2){tips.push((LANG==='zh'?'• ':'• ')+d.d+(LANG==='zh'?'：':' – ')+d.t);} }var maxIdx=0,maxVal=-1;for(i=0;i<wd.sc.length;i++){if(wd.sc[i]>maxVal){maxVal=wd.sc[i];maxIdx=i;}}tips.push(LANG==='zh'?'• '+AREAS[maxIdx]+'：本週能量特別強，適合優先安排相關重要事項。':'• '+AREAS[maxIdx]+': highlighted; prioritize related actions this week.');if(tips.length>3)tips=tips.slice(0,3);document.getElementById('tipTitle').textContent=LANG==='zh'?'⚠ 本週重大提示':'⚠ Key Alerts This Week';var kh='';for(i=0;i<tips.length;i++)kh+='<div class="tip-item">'+tips[i]+'</div>';document.getElementById('keyTips').innerHTML=kh;var tl=document.getElementById('transitList');if(tl)tl.innerHTML=LANG==='zh'?'（載入行運資料中…）':'(Loading transits…)';if(window.computeTransitsForWeek){window.computeTransitsForWeek(USER,CWK).then(function(tr){if(!tl)return;tl.innerHTML=formatTransitText(tr);}).catch(function(){tl.innerHTML='';});}else{if(tl)tl.innerHTML='';}
   document.getElementById('rAva').textContent=SIGN_EM[USER.sun];var yr2026=new Date(CWK).getFullYear();document.getElementById('rName').textContent=USER.name+(LANG==='zh'?' 的個人化週運 '+yr2026:' — Personal Weekly '+yr2026);document.getElementById('rTags').innerHTML='<span class="tag">☀️ '+(LANG==='zh'?'太陽 ':'')+SIGNS[USER.sun]+(LANG==='zh'?'座':'')+'</span>'+'<span class="tag">↑ '+(LANG==='zh'?'上升 ':'')+SIGNS[USER.ris]+(LANG==='zh'?'座 ':' ')+USER.risDeg+'°</span>'+'<span class="tag">🎂 '+USER.dv.replace(/-/g,'/')+'</span>'+'<span class="tag">📍 '+USER.city+'</span>';document.getElementById('rSrc').textContent=f.src;document.getElementById('edit-btn').textContent=f.edit;document.getElementById('save-btn').textContent=f.save;document.getElementById('wLbl').textContent='W'+wn+' · '+fmtRange(CWK);
   document.getElementById('luckyGrid').innerHTML='<div class="lt"><div class="llt">'+f.ll[0]+'</div><div class="llv" style="display:flex;align-items:center;justify-content:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:'+wd.colCSS+';flex-shrink:0;display:inline-block"></span>'+wd.col+'</div></div>'+'<div class="lt"><div class="llt">'+f.ll[1]+'</div><div class="llv">'+nums.join('·')+'</div></div>'+'<div class="lt"><div class="llt">'+f.ll[2]+'</div><div class="llv">'+wd.day+'</div></div>'+'<div class="lt"><div class="llt">'+f.ll[3]+'</div><div class="llv">'+wd.kw+'</div></div>';
   var rb=[USER.ris%12,(USER.ris+4)%12],ah='';for(var ai=0;ai<12;ai++){var sc=wd.sc[ai];if(rb.indexOf(ai)>=0)sc=Math.min(5,sc+1);ah+='<div class="atile" onclick="openDetail('+ai+')">'+'<div style="font-size:1.4rem;margin-bottom:5px">'+AREAS_IC[ai]+'</div>'+'<div style="font-size:.63rem;color:var(--dim);margin-bottom:4px;word-break:break-all;line-height:1.3">'+AREAS[ai]+'</div>'+'<div>'+stars(sc)+'</div></div>'; }document.getElementById('areasGrid').innerHTML=ah;var dh='';for(var di=0;di<wd.daily.length;di++){var d2=wd.daily[di];dh+='<div class="drow">'+'<div class="dr-d">'+d2.d+'</div>'+'<div class="dr-moon">'+d2.moon+'</div>'+'<div class="dr-t">'+d2.t+'</div>'+'<span class="dtag '+d2.cls+'">'+d2.tag+'</span></div>'; }document.getElementById('dailyList').innerHTML=dh;document.getElementById('sl1').textContent=f.sl[0];document.getElementById('sl2').textContent=f.sl[1];document.getElementById('sl3').textContent=f.sl[2];
@@ -236,5 +242,68 @@ function drawBg(){var c=document.getElementById('bg');if(!c)return;var ctx=c.get
 window.addEventListener('resize',drawBg);
 window.onload=function(){drawBg();document.querySelectorAll('.lb').forEach(function(b){b.classList.toggle('active',b.dataset.l===LANG);});var saved=localStorage.getItem('oracle_u');if(saved){try{USER=JSON.parse(saved);document.getElementById('formPage').style.display='none';document.getElementById('reportPage').style.display='block';renderReport();}catch(e){localStorage.removeItem('oracle_u');renderForm();}}else{renderForm();}document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});};
 </script>
+
+<script type="module">
+import SwissEph from 'https://cdn.jsdelivr.net/gh/prolaxu/swisseph-wasm@main/src/swisseph.js';
+
+const sweReady = SwissEph.init().then(async swe => {
+  try{
+    if(swe.swe_set_ephe_path) await swe.swe_set_ephe_path();
+  }catch(e){}
+  return swe;
+});
+
+function julianDayFromISO(isoDate){
+  const d = new Date(isoDate);
+  const y = d.getUTCFullYear();
+  const m = d.getUTCMonth()+1;
+  const day = d.getUTCDate();
+  const hr = 12.0; // noon UTC
+  return {y,m,day,hr};
+}
+
+function houseOf(cusps, lon){
+  let h = 12;
+  for(let i=1;i<=12;i++){
+    let cusp = cusps[i];
+    let next = (i===12?cusps[1]+360:cusps[i+1]);
+    let L = lon;
+    if(next>360 && L<cusps[1]) L+=360;
+    if(L>=cusp && L<next){h=i;break;}
+  }
+  return h;
+}
+
+window.computeTransitsForWeek = async function(user, weekISO){
+  try{
+    const swe = await sweReady;
+    const jdParts = julianDayFromISO(weekISO);
+    const jd = swe.swe_julday(jdParts.y,jdParts.m,jdParts.day,jdParts.hr,1);
+    const houses = swe.swe_houses(jd, user.lat, user.lon, 'P');
+    const cusps = houses.cusps;
+    const planets = [
+      {code:0,name_en:'Sun',name_zh:'太陽'},
+      {code:1,name_en:'Moon',name_zh:'月亮'},
+      {code:2,name_en:'Mercury',name_zh:'水星'},
+      {code:3,name_en:'Venus',name_zh:'金星'},
+      {code:4,name_en:'Mars',name_zh:'火星'},
+      {code:5,name_en:'Jupiter',name_zh:'木星'},
+      {code:6,name_en:'Saturn',name_zh:'土星'}
+    ];
+    const res = [];
+    for(const p of planets){
+      const calc = swe.swe_calc_ut(jd, p.code, 0);
+      const lon = calc[0];
+      const h = houseOf(cusps, lon);
+      res.push({planet:p.code,lon,house:h,name_en:p.name_en,name_zh:p.name_zh});
+    }
+    return res;
+  }catch(e){
+    console.error('Transit error',e);
+    return [];
+  }
+};
+</script>
+
 </body>
 </html>
